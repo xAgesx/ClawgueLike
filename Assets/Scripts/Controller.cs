@@ -13,10 +13,12 @@ public class Controller : MonoBehaviour {
     [Header("Horizontal Limits")]
     [SerializeField] private float horizontalMin;
     [SerializeField] private float horizontalMax;
+    [SerializeField] private bool invertHorizontal;
 
     [Header("Forward Limits")]
     [SerializeField] private float forwardMin;
     [SerializeField] private float forwardMax;
+    [SerializeField] private bool invertForward;
 
     private Vector2 input;
     private Vector2 velocity;
@@ -43,16 +45,26 @@ public class Controller : MonoBehaviour {
 
         if (horizontalAxis != null) {
             Vector3 pos = horizontalAxis.position;
-            pos.x += velocity.x * Time.deltaTime;
+            float dir = invertHorizontal ? -1f : 1f;
+            pos.x += velocity.x * dir * Time.deltaTime;
             pos.x = Mathf.Clamp(pos.x, horizontalMin, horizontalMax);
             horizontalAxis.position = pos;
+
+            if (pos.x <= horizontalMin || pos.x >= horizontalMax) {
+                velocity.x = 0f;
+            }
         }
 
         if (forwardAxis != null) {
             Vector3 pos = forwardAxis.position;
-            pos.z += velocity.y * Time.deltaTime;
+            float dir = invertForward ? -1f : 1f;
+            pos.z += velocity.y * dir * Time.deltaTime;
             pos.z = Mathf.Clamp(pos.z, forwardMin, forwardMax);
             forwardAxis.position = pos;
+
+            if (pos.z <= forwardMin || pos.z >= forwardMax) {
+                velocity.y = 0f;
+            }
         }
     }
 }

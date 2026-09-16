@@ -1861,13 +1861,15 @@ MonoBehaviour:
   horizontalAxis: {fileID: 723563725472155702}
   forwardAxis: {fileID: 8615341465359227829}
   verticalAxis: {fileID: 0}
-  speed: 5
+  speed: 2
   acceleration: 3
   deceleration: 2
   horizontalMin: -1.2
   horizontalMax: 1.2
+  invertHorizontal: 1
   forwardMin: -1.1
   forwardMax: 0.9
+  invertForward: 1
 --- !u!1 &1700313404
 GameObject:
   m_ObjectHideFlags: 0
