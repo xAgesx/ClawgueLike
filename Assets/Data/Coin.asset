@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Coin
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
   itemName: Coin
-  prefab: {fileID: 0}
-  value: 0
+  prefab: {fileID: 7880067690139979386, guid: 8277c30d4dc1ae34b984143d17b87014, type: 3}
+  value: 1
   weight: 1

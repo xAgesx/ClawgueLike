@@ -1,73 +1,115 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemSpawner : MonoBehaviour
-{
-    [SerializeField] private ItemData[] _itemPool;
-    [SerializeField] private Transform[] _spawnPoints;
-    [SerializeField] private int _itemsPerRound = 10;
-    [SerializeField] private float _spawnInterval = 0.5f;
-    [SerializeField] private Transform _parentContainer;
+public class ItemSpawner : MonoBehaviour {
+    [SerializeField] private ItemData[] itemPool;
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private int itemsPerRound = 10;
+    [SerializeField] private float spawnInterval = 0.5f;
+    [SerializeField] private Transform parentContainer;
+    [SerializeField] private int initialPoolSize = 100;
 
-    private int _spawnedCount;
-    private bool _isSpawning;
+    public bool spawnItems;
 
-    private void Start()
-    {
-        if (_spawnPoints == null || _spawnPoints.Length < 3)
-        {
+    [Header("Debug")]
+    public int spawnedCount;
+
+    private bool isSpawning;
+    private Dictionary<ItemData, ObjectPool> pools = new Dictionary<ItemData, ObjectPool>();
+    private List<GameObject> activeItems = new List<GameObject>();
+
+    private void OnValidate() {
+        if (spawnItems && !isSpawning) {
+            SpawnItems();
+        } else if (!spawnItems && isSpawning) {
+            StopSpawning();
+        }
+    }
+
+    private void Start() {
+        if (spawnPoints == null || spawnPoints.Length < 3) {
             Debug.LogError("ItemSpawner requires at least 3 spawn points.");
             return;
         }
 
-        if (_itemPool == null || _itemPool.Length == 0)
-        {
+        if (itemPool == null || itemPool.Length == 0) {
             Debug.LogError("ItemSpawner requires at least one item in the pool.");
             return;
         }
+
+        InitializePools();
     }
 
-    public void StartSpawning()
-    {
-        if (_isSpawning) return;
-        _isSpawning = true;
-        _spawnedCount = 0;
+    private void InitializePools() {
+        foreach (ItemData item in itemPool) {
+            if (!pools.ContainsKey(item)) {
+                GameObject poolParent = new GameObject($"Pool_{item.itemName}");
+                poolParent.transform.SetParent(transform);
+                pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
+            }
+        }
+    }
+
+    public void SpawnItems() {
+        if (isSpawning) return;
+        isSpawning = true;
+        spawnedCount = 0;
         StartCoroutine(SpawnRoutine());
     }
 
-    public void StopSpawning()
-    {
-        _isSpawning = false;
+    public void StopSpawning() {
+        isSpawning = false;
         StopAllCoroutines();
     }
 
-    private IEnumerator SpawnRoutine()
-    {
-        while (_spawnedCount < _itemsPerRound)
-        {
-            SpawnItem();
-            _spawnedCount++;
-            yield return new WaitForSeconds(_spawnInterval);
+    public void ClearAllItems() {
+        foreach (GameObject item in activeItems) {
+            if (item != null) {
+                ItemData itemData = GetItemDataByName(item.name);
+                if (itemData != null && pools.ContainsKey(itemData)) {
+                    pools[itemData].Return(item);
+                }
+            }
         }
-
-        _isSpawning = false;
+        activeItems.Clear();
+        spawnedCount = 0;
     }
 
-    private void SpawnItem()
-    {
-        ItemData itemData = _itemPool[Random.Range(0, _itemPool.Length)];
+    private IEnumerator SpawnRoutine() {
+        while (spawnedCount < itemsPerRound) {
+            SpawnItem();
+            spawnedCount++;
+            yield return new WaitForSeconds(spawnInterval);
+        }
+
+        isSpawning = false;
+    }
+
+    private void SpawnItem() {
+        ItemData itemData = itemPool[Random.Range(0, itemPool.Length)];
         Vector3 spawnPosition = CalculateSpawnPosition();
         Quaternion spawnRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
-        GameObject item = Instantiate(itemData.prefab, spawnPosition, spawnRotation, _parentContainer);
+        ObjectPool pool = pools[itemData];
+        GameObject item = pool.Get(spawnPosition, spawnRotation);
         item.name = itemData.itemName;
+        activeItems.Add(item);
     }
 
-    private Vector3 CalculateSpawnPosition()
-    {
-        Transform pointA = _spawnPoints[0];
-        Transform pointB = _spawnPoints[1];
-        Transform pointC = _spawnPoints[2];
+    private ItemData GetItemDataByName(string name) {
+        foreach (ItemData item in itemPool) {
+            if (item.itemName == name) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private Vector3 CalculateSpawnPosition() {
+        Transform pointA = spawnPoints[0];
+        Transform pointB = spawnPoints[1];
+        Transform pointC = spawnPoints[2];
 
         float t = Random.Range(0f, 1f);
         Vector3 ab = Vector3.Lerp(pointA.position, pointB.position, t);
