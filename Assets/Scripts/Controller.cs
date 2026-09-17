@@ -1,8 +1,10 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Controller : MonoBehaviour {
     [SerializeField] private InputActionReference moveAction;
+    [SerializeField] private InputActionReference dropAction;
     [SerializeField] private Transform horizontalAxis;
     [SerializeField] private Transform forwardAxis;
     [SerializeField] private Transform verticalAxis;
@@ -20,24 +22,48 @@ public class Controller : MonoBehaviour {
     [SerializeField] private float forwardMax;
     [SerializeField] private bool invertForward;
 
+    [Header("Drop")]
+    [SerializeField] private float dropDistance = 2f;
+    [SerializeField] private float dropDuration = 2f;
+    [SerializeField] private float dropSpeed = 5f;
+    [SerializeField] private float returnSpeed = 3f;
+
+    [Header("Drop Chute")]
+    [SerializeField] private Vector3 dropChutePosition;
+    [SerializeField] private float chuteReturnSpeed = 3f;
+
     private Vector2 input;
     private Vector2 velocity;
+    private bool isDropping;
+
+    public bool IsDropping => isDropping;
 
     private void OnEnable() {
         moveAction.action.performed += OnMove;
         moveAction.action.canceled += OnMove;
+        dropAction.action.performed += OnDrop;
     }
 
     private void OnDisable() {
         moveAction.action.performed -= OnMove;
         moveAction.action.canceled -= OnMove;
+        dropAction.action.performed -= OnDrop;
     }
 
     private void OnMove(InputAction.CallbackContext ctx) {
         input = ctx.ReadValue<Vector2>();
     }
 
+    private void OnDrop(InputAction.CallbackContext ctx) {
+        if (!isDropping && verticalAxis != null) {
+            Debug.Log("[Controller] Drop initiated");
+            StartCoroutine(DropRoutine());
+        }
+    }
+
     private void Update() {
+        if (isDropping) return;
+
         float accel = input.sqrMagnitude > 0.01f ? acceleration : deceleration;
 
         velocity.x = Mathf.MoveTowards(velocity.x, input.x * speed, accel * Time.deltaTime);
@@ -66,5 +92,62 @@ public class Controller : MonoBehaviour {
                 velocity.y = 0f;
             }
         }
+    }
+
+    private IEnumerator DropRoutine() {
+        isDropping = true;
+        velocity = Vector2.zero;
+
+        // Phase 1: Drop down
+        Vector3 verticalStartPos = verticalAxis.position;
+        Vector3 dropTarget = verticalStartPos + Vector3.down * dropDistance;
+
+        Debug.Log("[Controller] Dropping...");
+        while (Vector3.Distance(verticalAxis.position, dropTarget) > 0.01f) {
+            verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, dropTarget, dropSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Phase 2: Wait at bottom
+        Debug.Log("[Controller] Reached bottom, waiting...");
+        yield return new WaitForSeconds(dropDuration);
+
+        // Phase 3: Return up
+        Debug.Log("[Controller] Returning up...");
+        while (Vector3.Distance(verticalAxis.position, verticalStartPos) > 0.01f) {
+            verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, verticalStartPos, returnSpeed * Time.deltaTime);
+            yield return null;
+        }
+        verticalAxis.position = verticalStartPos;
+        Debug.Log("[Controller] Magnet returned");
+
+        // Phase 4: Return X to chute
+        Debug.Log("[Controller] Returning to drop chute (X)...");
+        while (Mathf.Abs(horizontalAxis.position.x - dropChutePosition.x) > 0.01f) {
+            float dir = dropChutePosition.x > horizontalAxis.position.x ? 1f : -1f;
+            Vector3 pos = horizontalAxis.position;
+            pos.x += dir * chuteReturnSpeed * Time.deltaTime;
+            if ((dir > 0 && pos.x > dropChutePosition.x) || (dir < 0 && pos.x < dropChutePosition.x)) {
+                pos.x = dropChutePosition.x;
+            }
+            horizontalAxis.position = pos;
+            yield return null;
+        }
+
+        // Phase 5: Return Z to chute
+        Debug.Log("[Controller] Returning to drop chute (Z)...");
+        while (Mathf.Abs(forwardAxis.position.z - dropChutePosition.z) > 0.01f) {
+            float dir = dropChutePosition.z > forwardAxis.position.z ? 1f : -1f;
+            Vector3 pos = forwardAxis.position;
+            pos.z += dir * chuteReturnSpeed * Time.deltaTime;
+            if ((dir > 0 && pos.z > dropChutePosition.z) || (dir < 0 && pos.z < dropChutePosition.z)) {
+                pos.z = dropChutePosition.z;
+            }
+            forwardAxis.position = pos;
+            yield return null;
+        }
+
+        Debug.Log("[Controller] Drop sequence complete, controls restored");
+        isDropping = false;
     }
 }

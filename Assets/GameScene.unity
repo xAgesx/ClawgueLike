@@ -8335,18 +8335,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.4523137, y: 0.35, z: 0.12913159}
   m_Center: {x: -0.039520383, y: 0, z: -0.03456579}
---- !u!114 &765782162
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132147498098401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MachineInteriorColliders
 --- !u!1 &773010979
 GameObject:
   m_ObjectHideFlags: 0
@@ -19765,7 +19753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 991cf00a8b9421846b302f7e603b710c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.1377
+      value: 3.212
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: 991cf00a8b9421846b302f7e603b710c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -20209,9 +20197,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Controller
   moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  dropAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   horizontalAxis: {fileID: 723563725472155702}
   forwardAxis: {fileID: 8615341465359227829}
-  verticalAxis: {fileID: 0}
+  verticalAxis: {fileID: 7659640000832935541}
   speed: 2
   acceleration: 3
   deceleration: 2
@@ -20221,6 +20210,12 @@ MonoBehaviour:
   forwardMin: -1.1
   forwardMax: 0.9
   invertForward: 1
+  dropDistance: 2
+  dropDuration: 2
+  dropSpeed: 5
+  returnSpeed: 3
+  dropChutePosition: {x: 1, y: 3.3, z: 0.6}
+  chuteReturnSpeed: 3
 --- !u!1 &1700313404
 GameObject:
   m_ObjectHideFlags: 0
@@ -31323,7 +31318,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 543450652042609755}
-  - component: {fileID: 765782162}
   m_Layer: 0
   m_Name: clawMachine_NoClaw
   m_TagString: Untagged
@@ -31989,7 +31983,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!33 &2796366877202024549
 MeshFilter:
   m_ObjectHideFlags: 0
