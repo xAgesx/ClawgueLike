@@ -98,7 +98,6 @@ public class Controller : MonoBehaviour {
         isDropping = true;
         velocity = Vector2.zero;
 
-        // Phase 1: Drop down
         Vector3 verticalStartPos = verticalAxis.position;
         Vector3 dropTarget = verticalStartPos + Vector3.down * dropDistance;
 
@@ -108,11 +107,9 @@ public class Controller : MonoBehaviour {
             yield return null;
         }
 
-        // Phase 2: Wait at bottom
         Debug.Log("[Controller] Reached bottom, waiting...");
         yield return new WaitForSeconds(dropDuration);
 
-        // Phase 3: Return up
         Debug.Log("[Controller] Returning up...");
         while (Vector3.Distance(verticalAxis.position, verticalStartPos) > 0.01f) {
             verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, verticalStartPos, returnSpeed * Time.deltaTime);
@@ -121,7 +118,6 @@ public class Controller : MonoBehaviour {
         verticalAxis.position = verticalStartPos;
         Debug.Log("[Controller] Magnet returned");
 
-        // Phase 4: Return X to chute
         Debug.Log("[Controller] Returning to drop chute (X)...");
         while (Mathf.Abs(horizontalAxis.position.x - dropChutePosition.x) > 0.01f) {
             float dir = dropChutePosition.x > horizontalAxis.position.x ? 1f : -1f;
@@ -134,7 +130,6 @@ public class Controller : MonoBehaviour {
             yield return null;
         }
 
-        // Phase 5: Return Z to chute
         Debug.Log("[Controller] Returning to drop chute (Z)...");
         while (Mathf.Abs(forwardAxis.position.z - dropChutePosition.z) > 0.01f) {
             float dir = dropChutePosition.z > forwardAxis.position.z ? 1f : -1f;
