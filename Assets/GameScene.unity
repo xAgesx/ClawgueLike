@@ -66640,6 +66640,9 @@ MonoBehaviour:
   dynamicSegment: {fileID: 1020990264}
   segmentRestPosition: {fileID: 1484041569}
   segmentReturnSpeed: 1
+  visualSegmentsParent: {fileID: 57741219}
+  visualAppearEarlier: 0.5
+  visualDisappearLater: 1
 --- !u!1 &1700313404
 GameObject:
   m_ObjectHideFlags: 0
@@ -89701,7 +89704,7 @@ GameObject:
   m_Component:
   - component: {fileID: 723563725472155702}
   m_Layer: 0
-  m_Name: Horizontal
+  m_Name: HorizontalAxis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

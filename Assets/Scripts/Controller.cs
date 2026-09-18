@@ -37,11 +37,30 @@ public class Controller : MonoBehaviour {
     [SerializeField] private Transform segmentRestPosition;
     [SerializeField] private float segmentReturnSpeed = 3f;
 
+    [Header("Visual Segments")]
+    [SerializeField] private Transform visualSegmentsParent;
+    [SerializeField] private float visualAppearEarlier = 0.5f;
+    [SerializeField] private float visualDisappearLater = 1f;
+
     private Vector2 input;
     private Vector2 velocity;
     private bool isDropping;
 
     public bool IsDropping => isDropping;
+
+    private void SetVisualRenderers(bool enabled) {
+        if (visualSegmentsParent == null) return;
+        for (int i = 0; i < visualSegmentsParent.childCount; i++) {
+            Renderer r = visualSegmentsParent.GetChild(i).GetComponent<Renderer>();
+            if (r != null) r.enabled = enabled;
+        }
+    }
+
+    private void SetVisualRenderer(int index, bool enabled) {
+        if (visualSegmentsParent == null || index < 0 || index >= visualSegmentsParent.childCount) return;
+        Renderer r = visualSegmentsParent.GetChild(index).GetComponent<Renderer>();
+        if (r != null) r.enabled = enabled;
+    }
 
     private void OnEnable() {
         moveAction.action.performed += OnMove;
@@ -108,20 +127,55 @@ public class Controller : MonoBehaviour {
 
         Debug.Log("[Controller] Dropping...");
         if (dynamicSegment != null) dynamicSegment.isKinematic = false;
+        SetVisualRenderers(false);
+
+        int segmentsShown = 0;
+        float dropTime = dropDistance / dropSpeed;
+        float appearOffset = visualAppearEarlier / dropTime;
 
         while (Vector3.Distance(verticalAxis.position, dropTarget) > 0.01f) {
             verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, dropTarget, dropSpeed * Time.deltaTime);
+
+            if (visualSegmentsParent != null) {
+                float elapsed = Mathf.Clamp01(Vector3.Distance(verticalStartPos, verticalAxis.position) / dropDistance + appearOffset);
+                int target = Mathf.FloorToInt(elapsed * visualSegmentsParent.childCount);
+                while (segmentsShown < target && segmentsShown < visualSegmentsParent.childCount) {
+                    SetVisualRenderer(segmentsShown, true);
+                    segmentsShown++;
+                }
+            }
+
             yield return null;
         }
+
+        SetVisualRenderers(true);
 
         Debug.Log("[Controller] Reached bottom, waiting...");
         yield return new WaitForSeconds(dropDuration);
 
         Debug.Log("[Controller] Returning up...");
+        int segmentsHidden = 0;
+        float returnTime = dropDistance / returnSpeed;
+        float disappearOffset = visualDisappearLater / returnTime;
+
         while (Vector3.Distance(verticalAxis.position, verticalStartPos) > 0.01f) {
             verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, verticalStartPos, returnSpeed * Time.deltaTime);
+
+            if (visualSegmentsParent != null) {
+                float elapsed = Mathf.Clamp01(1f - (Vector3.Distance(verticalStartPos, verticalAxis.position) / dropDistance) - disappearOffset);
+                int target = Mathf.FloorToInt(elapsed * visualSegmentsParent.childCount);
+                int index = visualSegmentsParent.childCount - 1 - segmentsHidden;
+                while (segmentsHidden < target && index >= 0) {
+                    SetVisualRenderer(index, false);
+                    segmentsHidden++;
+                    index = visualSegmentsParent.childCount - 1 - segmentsHidden;
+                }
+            }
+
             yield return null;
         }
+
+        SetVisualRenderers(false);
         verticalAxis.position = verticalStartPos;
         Debug.Log("[Controller] Magnet returned");
 
