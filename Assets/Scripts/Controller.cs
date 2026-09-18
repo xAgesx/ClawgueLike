@@ -32,6 +32,11 @@ public class Controller : MonoBehaviour {
     [SerializeField] private Vector3 dropChutePosition;
     [SerializeField] private float chuteReturnSpeed = 3f;
 
+    [Header("Chain Segment")]
+    [SerializeField] private Rigidbody dynamicSegment;
+    [SerializeField] private Transform segmentRestPosition;
+    [SerializeField] private float segmentReturnSpeed = 3f;
+
     private Vector2 input;
     private Vector2 velocity;
     private bool isDropping;
@@ -102,6 +107,8 @@ public class Controller : MonoBehaviour {
         Vector3 dropTarget = verticalStartPos + Vector3.down * dropDistance;
 
         Debug.Log("[Controller] Dropping...");
+        if (dynamicSegment != null) dynamicSegment.isKinematic = false;
+
         while (Vector3.Distance(verticalAxis.position, dropTarget) > 0.01f) {
             verticalAxis.position = Vector3.MoveTowards(verticalAxis.position, dropTarget, dropSpeed * Time.deltaTime);
             yield return null;
@@ -117,6 +124,20 @@ public class Controller : MonoBehaviour {
         }
         verticalAxis.position = verticalStartPos;
         Debug.Log("[Controller] Magnet returned");
+
+        if (dynamicSegment != null && segmentRestPosition != null) {
+            Debug.Log("[Controller] Returning segment to rest position...");
+            dynamicSegment.isKinematic = true;
+            while (Mathf.Abs(dynamicSegment.position.y - segmentRestPosition.position.y) > 0.01f) {
+                dynamicSegment.transform.position = Vector3.MoveTowards(
+                    dynamicSegment.transform.position,
+                    segmentRestPosition.position,
+                    segmentReturnSpeed * Time.deltaTime);
+                yield return null;
+            }
+            dynamicSegment.transform.position = segmentRestPosition.position;
+            Debug.Log("[Controller] Segment locked at rest position");
+        }
 
         Debug.Log("[Controller] Returning to drop chute (X)...");
         while (Mathf.Abs(horizontalAxis.position.x - dropChutePosition.x) > 0.01f) {
