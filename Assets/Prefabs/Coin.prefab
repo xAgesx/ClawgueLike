@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 300605636945894949}
   - component: {fileID: 8442315349843390959}
   - component: {fileID: -3056058147539190029}
-  m_Layer: 0
+  - component: {fileID: 4360995424809601569}
+  m_Layer: 3
   m_Name: Coin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +124,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7880067690139979386}
   serializedVersion: 5
-  m_Mass: 5
+  m_Mass: 0.1
   m_LinearDamping: 0.1
   m_AngularDamping: 0.5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -157,3 +158,16 @@ MonoBehaviour:
   sleepVelocity: 0.02
   sleepAngularVelocity: 0.02
   sleepDelay: 50
+--- !u!114 &4360995424809601569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880067690139979386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
+  itemData: {fileID: 11400000, guid: 3baa411a47ce5ff40bcc6731f5aff9d7, type: 2}

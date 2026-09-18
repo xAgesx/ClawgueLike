@@ -42,6 +42,9 @@ public class Controller : MonoBehaviour {
     [SerializeField] private float visualAppearEarlier = 0.5f;
     [SerializeField] private float visualDisappearLater = 1f;
 
+    [Header("Magnet")]
+    [SerializeField] private Magnet magnet;
+
     private Vector2 input;
     private Vector2 velocity;
     private bool isDropping;
@@ -127,6 +130,7 @@ public class Controller : MonoBehaviour {
 
         Debug.Log("[Controller] Dropping...");
         if (dynamicSegment != null) dynamicSegment.isKinematic = false;
+        if (magnet != null) magnet.EnableMagneticField();
         SetVisualRenderers(false);
 
         int segmentsShown = 0;
@@ -218,6 +222,7 @@ public class Controller : MonoBehaviour {
         }
 
         Debug.Log("[Controller] Drop sequence complete, controls restored");
+        if (magnet != null) magnet.DisableMagneticField();
         isDropping = false;
     }
 }
