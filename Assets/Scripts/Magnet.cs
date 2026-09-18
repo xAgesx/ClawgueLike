@@ -3,6 +3,7 @@ using UnityEngine;
 public class Magnet : MonoBehaviour {
     [SerializeField] private float attractionRadius = 1f;
     [SerializeField] private float attractionForce = 10f;
+    [SerializeField] private float rotationForce = 5f;
     [SerializeField] private LayerMask itemsLayer;
 
     private bool magneticFieldActive;
@@ -35,6 +36,12 @@ public class Magnet : MonoBehaviour {
             float forceMagnitude = attractionForce * multiplier * (attractionRadius / Mathf.Max(distance, 0.01f));
 
             rb.AddForce(direction.normalized * forceMagnitude, ForceMode.Acceleration);
+
+            Vector3 toMagnet = (transform.position - hit.transform.position).normalized;
+            Vector3 tiltAxis = Vector3.Cross(Vector3.up, toMagnet);
+            float tiltAngle = Vector3.Angle(Vector3.up, toMagnet);
+            float rotMagnitude = rotationForce * multiplier * (attractionRadius / Mathf.Max(distance, 0.01f));
+            rb.AddTorque(tiltAxis * tiltAngle * rotMagnitude * 0.01f, ForceMode.Acceleration);
         }
     }
 

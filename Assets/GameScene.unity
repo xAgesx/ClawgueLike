@@ -67587,7 +67587,7 @@ MonoBehaviour:
   forwardMax: 0.9
   invertForward: 1
   dropDistance: 1
-  dropDuration: 4
+  dropDuration: 2
   dropSpeed: 1
   returnSpeed: 1
   dropChutePosition: {x: 1, y: 3.3, z: 0.6}
@@ -91974,6 +91974,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Magnet
   attractionRadius: 1
   attractionForce: 7
+  rotationForce: 50
   itemsLayer:
     serializedVersion: 2
     m_Bits: 8
