@@ -83,7 +83,6 @@ public class Controller : MonoBehaviour {
 
     private void OnDrop(InputAction.CallbackContext ctx) {
         if (!isDropping && verticalAxis != null) {
-            Debug.Log("[Controller] Drop initiated");
             StartCoroutine(DropRoutine());
         }
     }
@@ -128,7 +127,6 @@ public class Controller : MonoBehaviour {
         Vector3 verticalStartPos = verticalAxis.position;
         Vector3 dropTarget = verticalStartPos + Vector3.down * dropDistance;
 
-        Debug.Log("[Controller] Dropping...");
         if (dynamicSegment != null) dynamicSegment.isKinematic = false;
         if (magnet != null) magnet.EnableMagneticField();
         SetVisualRenderers(false);
@@ -154,10 +152,8 @@ public class Controller : MonoBehaviour {
 
         SetVisualRenderers(true);
 
-        Debug.Log("[Controller] Reached bottom, waiting...");
         yield return new WaitForSeconds(dropDuration);
 
-        Debug.Log("[Controller] Returning up...");
         int segmentsHidden = 0;
         float returnTime = dropDistance / returnSpeed;
         float disappearOffset = visualDisappearLater / returnTime;
@@ -181,10 +177,8 @@ public class Controller : MonoBehaviour {
 
         SetVisualRenderers(false);
         verticalAxis.position = verticalStartPos;
-        Debug.Log("[Controller] Magnet returned");
 
         if (dynamicSegment != null && segmentRestPosition != null) {
-            Debug.Log("[Controller] Returning segment to rest position...");
             dynamicSegment.isKinematic = true;
             while (Mathf.Abs(dynamicSegment.position.y - segmentRestPosition.position.y) > 0.01f) {
                 dynamicSegment.transform.position = Vector3.MoveTowards(
@@ -194,10 +188,8 @@ public class Controller : MonoBehaviour {
                 yield return null;
             }
             dynamicSegment.transform.position = segmentRestPosition.position;
-            Debug.Log("[Controller] Segment locked at rest position");
         }
 
-        Debug.Log("[Controller] Returning to drop chute (X)...");
         while (Mathf.Abs(horizontalAxis.position.x - dropChutePosition.x) > 0.01f) {
             float dir = dropChutePosition.x > horizontalAxis.position.x ? 1f : -1f;
             Vector3 pos = horizontalAxis.position;
@@ -209,7 +201,6 @@ public class Controller : MonoBehaviour {
             yield return null;
         }
 
-        Debug.Log("[Controller] Returning to drop chute (Z)...");
         while (Mathf.Abs(forwardAxis.position.z - dropChutePosition.z) > 0.01f) {
             float dir = dropChutePosition.z > forwardAxis.position.z ? 1f : -1f;
             Vector3 pos = forwardAxis.position;
@@ -221,8 +212,8 @@ public class Controller : MonoBehaviour {
             yield return null;
         }
 
-        Debug.Log("[Controller] Drop sequence complete, controls restored");
         if (magnet != null) magnet.DisableMagneticField();
+        RoundsManager.Instance?.OnPullUsed();
         isDropping = false;
     }
 }

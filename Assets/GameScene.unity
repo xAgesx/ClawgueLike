@@ -49282,10 +49282,10 @@ MonoBehaviour:
   - {fileID: 8039845}
   - {fileID: 1088216873}
   - {fileID: 602222505}
-  itemsPerRound: 10000
+  itemsPerRound: 50
   spawnInterval: 0.001
   parentContainer: {fileID: 1778752454}
-  initialPoolSize: 5000
+  initialPoolSize: 100
   spawnItems: 0
   spawnedCount: 0
 --- !u!43 &1283704866
@@ -63893,6 +63893,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1619081640}
+  - component: {fileID: 1619081641}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -63915,8 +63916,24 @@ Transform:
   m_Children:
   - {fileID: 1282747095}
   - {fileID: 1673187881}
+  - {fileID: 1645775186}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1619081641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619081639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4612031ffabc2174ca492b483f415af7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  startingCoins: 50
+  maxPullsPerTurn: 1
+  turnsPerRound: 1
 --- !u!1 &1633297389
 GameObject:
   m_ObjectHideFlags: 0
@@ -63952,6 +63969,53 @@ Transform:
   - {fileID: 1054883918}
   m_Father: {fileID: 543450652042609755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1645775185
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1645775186}
+  - component: {fileID: 1645775187}
+  m_Layer: 0
+  m_Name: RoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1645775186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1645775185}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1619081640}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1645775187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1645775185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad194f9b1041dc4419898305804457b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoundsManager
+  itemSpawner: {fileID: 1282747096}
+  itemsPerSpawn: 50
+  resupplyCost: 20
 --- !u!1 &1651613575
 GameObject:
   m_ObjectHideFlags: 0

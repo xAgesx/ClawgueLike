@@ -56,6 +56,7 @@
   <Project Path="Unity.Collections.CodeGen.csproj" />
   <Project Path="Unity.VisualScripting.SettingsProvider.Editor.csproj" />
   <Project Path="UnityEditor.UI.Analytics.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Unity.PathTracing.Runtime.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Unity.PathTracing.Editor.csproj" />
@@ -69,7 +70,6 @@
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="glTFast.Editor.Documentation.Examples.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="glTFast.dots.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Editor.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.004.csproj" />
