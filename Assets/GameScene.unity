@@ -49286,6 +49286,7 @@ MonoBehaviour:
   spawnInterval: 0.001
   parentContainer: {fileID: 1778752454}
   initialPoolSize: 100
+  spawnOnStart: 1
   spawnItems: 0
   spawnedCount: 0
 --- !u!43 &1283704866
@@ -67663,6 +67664,14 @@ MonoBehaviour:
   visualAppearEarlier: 0.5
   visualDisappearLater: 1
   magnet: {fileID: 8572852400403102972}
+  joystick: {fileID: 2324070970848350710}
+  joystickRotationSpeed: 10
+  maxJoystickAngle: 30
+  invertHorizontalAxis: 0
+  invertVerticalAxis: 0
+  dropButton: {fileID: 5018110970579307089}
+  buttonPressDepth: 0.0003
+  buttonPressSpeed: 15
 --- !u!1 &1700313404
 GameObject:
   m_ObjectHideFlags: 0
@@ -90869,7 +90878,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5619333989782010565}
   m_Layer: 0
-  m_Name: Empty.002
+  m_Name: JoyStick Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91129,7 +91138,7 @@ GameObject:
   - component: {fileID: 4930808674850293141}
   - component: {fileID: 2838220912394107520}
   m_Layer: 0
-  m_Name: Circle.007
+  m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91145,7 +91154,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5018110970579307089}
   m_Layer: 0
-  m_Name: Bone
+  m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91772,7 +91781,7 @@ GameObject:
   - component: {fileID: 2426261283945618078}
   - component: {fileID: 4836555451704730641}
   m_Layer: 0
-  m_Name: Circle.006
+  m_Name: JoyStick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

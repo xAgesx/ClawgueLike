@@ -45,9 +45,22 @@ public class Controller : MonoBehaviour {
     [Header("Magnet")]
     [SerializeField] private Magnet magnet;
 
+    [Header("Joystick")]
+    [SerializeField] private Transform joystick;
+    [SerializeField] private float joystickRotationSpeed = 10f;
+    [SerializeField] private float maxJoystickAngle = 30f;
+    [SerializeField] private bool invertHorizontalAxis = false;
+    [SerializeField] private bool invertVerticalAxis = false;
+
+    [Header("Button")]
+    [SerializeField] private Transform dropButton;
+    [SerializeField] private float buttonPressDepth = 0.1f;
+    [SerializeField] private float buttonPressSpeed = 15f;
+
     private Vector2 input;
     private Vector2 velocity;
     private bool isDropping;
+    private Vector3 buttonStartPos;
 
     public bool IsDropping => isDropping;
 
@@ -63,6 +76,12 @@ public class Controller : MonoBehaviour {
         if (visualSegmentsParent == null || index < 0 || index >= visualSegmentsParent.childCount) return;
         Renderer r = visualSegmentsParent.GetChild(index).GetComponent<Renderer>();
         if (r != null) r.enabled = enabled;
+    }
+
+    private void Start() {
+        if (dropButton != null) {
+            buttonStartPos = dropButton.localPosition;
+        }
     }
 
     private void OnEnable() {
@@ -118,6 +137,25 @@ public class Controller : MonoBehaviour {
                 velocity.y = 0f;
             }
         }
+
+        UpdateJoystickRotation();
+    }
+
+    private void UpdateJoystickRotation() {
+        if (joystick == null) return;
+
+        float horizontal = invertHorizontalAxis ? -velocity.x : velocity.x;
+        float vertical = invertVerticalAxis ? -velocity.y : velocity.y;
+
+        float targetX = -vertical / speed * maxJoystickAngle;
+        float targetY = horizontal / speed * maxJoystickAngle;
+
+        Quaternion targetRotation = Quaternion.Euler(targetX, targetY, 0f);
+        joystick.localRotation = Quaternion.Slerp(joystick.localRotation, targetRotation, joystickRotationSpeed * Time.deltaTime);
+
+        if (Mathf.Abs(velocity.x) > 0.01f || Mathf.Abs(velocity.y) > 0.01f) {
+            Debug.Log($"[Joystick] vel=({velocity.x:F2}, {velocity.y:F2}) target=({targetX:F1}, {targetY:F1})");
+        }
     }
 
     private IEnumerator DropRoutine() {
@@ -130,6 +168,7 @@ public class Controller : MonoBehaviour {
         if (dynamicSegment != null) dynamicSegment.isKinematic = false;
         if (magnet != null) magnet.EnableMagneticField();
         SetVisualRenderers(false);
+        StartCoroutine(PressButton(true));
 
         int segmentsShown = 0;
         float dropTime = dropDistance / dropSpeed;
@@ -213,7 +252,22 @@ public class Controller : MonoBehaviour {
         }
 
         if (magnet != null) magnet.DisableMagneticField();
+        StartCoroutine(PressButton(false));
         RoundsManager.Instance?.OnPullUsed();
         isDropping = false;
+    }
+
+    private IEnumerator PressButton(bool press) {
+        if (dropButton == null) yield break;
+
+        Vector3 targetPos = press
+            ? buttonStartPos - Vector3.up * buttonPressDepth
+            : buttonStartPos;
+
+        while (Vector3.Distance(dropButton.localPosition, targetPos) > 0.001f) {
+            dropButton.localPosition = Vector3.MoveTowards(dropButton.localPosition, targetPos, buttonPressSpeed * Time.deltaTime);
+            yield return null;
+        }
+        dropButton.localPosition = targetPos;
     }
 }

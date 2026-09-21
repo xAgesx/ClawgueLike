@@ -9,6 +9,7 @@ public class ItemSpawner : MonoBehaviour {
     [SerializeField] private float spawnInterval = 0.5f;
     [SerializeField] private Transform parentContainer;
     [SerializeField] private int initialPoolSize = 100;
+    [SerializeField] private bool spawnOnStart = true;
 
     public bool spawnItems;
 
@@ -39,6 +40,10 @@ public class ItemSpawner : MonoBehaviour {
         }
 
         InitializePools();
+
+        if (spawnOnStart) {
+            SpawnItems();
+        }
     }
 
     private void InitializePools() {
