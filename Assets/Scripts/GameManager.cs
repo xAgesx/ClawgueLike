@@ -17,7 +17,12 @@ public class GameManager : MonoBehaviour {
     public int CurrentRound { get; private set; }
 
     [Header("Shop")]
-    [SerializeField] public int shopPanelIndex = 1;
+    [SerializeField] public int shopPanelIndex = 0;
+    [SerializeField] private float shopOpenDelay = 2f;
+    [SerializeField] private float refillDelay = 1f;
+
+    public float ShopOpenDelay => shopOpenDelay;
+    public float RefillDelay => refillDelay;
 
     public int MaxPullsPerTurn => maxPullsPerTurn;
     public int TurnsPerRound => turnsPerRound;
@@ -90,12 +95,11 @@ public class GameManager : MonoBehaviour {
         Debug.Log($"[GameManager] Turn {CurrentTurn} / Round {CurrentRound}");
 
         if (PanelManager.Instance != null) {
-            StartCoroutine(OpenShopPanelDelayed());
+            PanelManager.Instance.OpenPanel(shopPanelIndex);
         }
     }
 
-    private System.Collections.IEnumerator OpenShopPanelDelayed() {
-        yield return new WaitForSecondsRealtime(0.5f);
+    public void OpenShopPanel() {
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OpenPanel(shopPanelIndex);
         }

@@ -9,6 +9,7 @@ public class RoundsManager : MonoBehaviour {
 
     [Header("Costs")]
     [SerializeField] private int resupplyCost = 20;
+    public bool IsTurnActive => isTurnActive;
 
     private bool isTurnActive;
     private int itemsSpawnedThisRound;
@@ -52,17 +53,24 @@ public class RoundsManager : MonoBehaviour {
     }
 
     private void EndRound() {
-
         if (GameManager.Instance.SpendCoins(resupplyCost)) {
-            if (itemSpawner != null) {
-                itemSpawner.SpawnItems();
-                itemsSpawnedThisRound += itemsPerSpawn;
-            }
-            GameManager.Instance.AdvanceTurn();
-            BeginTurn();
-        } else {
+            StartCoroutine(EndRoundSequence());
         }
     }
 
-    public bool IsTurnActive => isTurnActive;
-}
+private System.Collections.IEnumerator EndRoundSequence() {
+        yield return new WaitForSecondsRealtime(GameManager.Instance.ShopOpenDelay);
+        GameManager.Instance.OpenShopPanel();
+
+        yield return new WaitForSecondsRealtime(GameManager.Instance.RefillDelay);
+        if (itemSpawner != null) {
+            itemSpawner.SpawnItems();
+            itemsSpawnedThisRound += itemsPerSpawn;
+        }
+        GameManager.Instance.AdvanceTurn();
+        BeginTurn();
+    }
+    }
+
+
+

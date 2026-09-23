@@ -63,6 +63,7 @@ public class Controller : MonoBehaviour {
     private Vector3 buttonStartPos;
 
     public bool IsDropping => isDropping;
+    public float dropLockTimer = 1f;
 
     private void SetVisualRenderers(bool enabled) {
         if (visualSegmentsParent == null) return;
@@ -107,7 +108,14 @@ public class Controller : MonoBehaviour {
     }
 
     private void Update() {
-        if (isDropping) return;
+        if (isDropping) {
+        dropLockTimer = 1.0f;
+    } 
+    else if (dropLockTimer > 0f) {
+        dropLockTimer -= Time.deltaTime;
+    }
+
+    if (dropLockTimer > 0f) return;
 
         float accel = input.sqrMagnitude > 0.01f ? acceleration : deceleration;
 
@@ -153,9 +161,7 @@ public class Controller : MonoBehaviour {
         Quaternion targetRotation = Quaternion.Euler(targetX, targetY, 0f);
         joystick.localRotation = Quaternion.Slerp(joystick.localRotation, targetRotation, joystickRotationSpeed * Time.deltaTime);
 
-        if (Mathf.Abs(velocity.x) > 0.01f || Mathf.Abs(velocity.y) > 0.01f) {
-            Debug.Log($"[Joystick] vel=({velocity.x:F2}, {velocity.y:F2}) target=({targetX:F1}, {targetY:F1})");
-        }
+    
     }
 
     private IEnumerator DropRoutine() {
@@ -254,8 +260,12 @@ public class Controller : MonoBehaviour {
         if (magnet != null) magnet.DisableMagneticField();
         StartCoroutine(PressButton(false));
         isDropping = false;
-        RoundsManager.Instance?.OnPullUsed();
+        StartCoroutine(EndPull());
 
+    }
+    IEnumerator EndPull() {
+        yield return new WaitForSeconds(1);
+        RoundsManager.Instance?.OnPullUsed();
     }
 
     private IEnumerator PressButton(bool press) {
