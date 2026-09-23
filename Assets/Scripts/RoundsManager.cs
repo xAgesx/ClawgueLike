@@ -38,7 +38,6 @@ public class RoundsManager : MonoBehaviour {
 
     private void BeginTurn() {
         isTurnActive = true;
-        Debug.Log($"[RoundsManager] Turn {GameManager.Instance.CurrentTurn} started. Pulls: {GameManager.Instance.CurrentPulls}");
     }
 
     private void EndTurn() {
@@ -53,7 +52,6 @@ public class RoundsManager : MonoBehaviour {
     }
 
     private void EndRound() {
-        Debug.Log($"[RoundsManager] Round {GameManager.Instance.CurrentRound} complete. Respawning items...");
 
         if (GameManager.Instance.SpendCoins(resupplyCost)) {
             if (itemSpawner != null) {
@@ -63,7 +61,6 @@ public class RoundsManager : MonoBehaviour {
             GameManager.Instance.AdvanceTurn();
             BeginTurn();
         } else {
-            Debug.LogWarning("[RoundsManager] Not enough coins to resupply!");
         }
     }
 

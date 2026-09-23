@@ -253,8 +253,9 @@ public class Controller : MonoBehaviour {
 
         if (magnet != null) magnet.DisableMagneticField();
         StartCoroutine(PressButton(false));
-        RoundsManager.Instance?.OnPullUsed();
         isDropping = false;
+        RoundsManager.Instance?.OnPullUsed();
+
     }
 
     private IEnumerator PressButton(bool press) {
