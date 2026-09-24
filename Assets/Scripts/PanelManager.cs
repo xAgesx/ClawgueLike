@@ -1,8 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PanelManager : MonoBehaviour {
     public static PanelManager Instance { get; private set; }
+
+    public event Action<int, int> OnCurrencyChanged; // coins, fragments
+    public event Action<int> OnPullsChanged;
+    public event Action<int, int> OnTurnChanged; // currentTurn, maxTurns
+    public event Action<int> OnRoundChanged;
 
     [System.Serializable]
     public class PanelEntry {
@@ -90,6 +96,22 @@ public class PanelManager : MonoBehaviour {
     public bool IsPanelOpen(int index) {
         if (index < 0 || index >= panels.Count) return false;
         return panels[index].panel != null && panels[index].panel.activeSelf;
+    }
+
+    public void UpdateCurrencyDisplay(int coins, int fragments) {
+        OnCurrencyChanged?.Invoke(coins, fragments);
+    }
+
+    public void UpdatePullsDisplay(int pulls) {
+        OnPullsChanged?.Invoke(pulls);
+    }
+
+    public void UpdateTurnDisplay(int currentTurn, int maxTurns) {
+        OnTurnChanged?.Invoke(currentTurn, maxTurns);
+    }
+
+    public void UpdateRoundDisplay(int round) {
+        OnRoundChanged?.Invoke(round);
     }
 
     private void UpdateGameUIPanel() {

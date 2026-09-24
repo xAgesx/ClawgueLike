@@ -39,27 +39,35 @@ public class GameManager : MonoBehaviour {
         ResetGame();
     }
 
+    private void Start() {
+        NotifyAllUI();
+    }
+
     public void ResetGame() {
         CoinsBalance = startingCoins;
         FragmentsBalance = startingFragments;
         CurrentPulls = maxPullsPerTurn;
         CurrentTurn = 1;
         CurrentRound = 1;
+        NotifyAllUI();
     }
 
     public void AddCoins(int amount) {
         CoinsBalance += amount;
+        PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
         Debug.Log($"[GameManager] Coins: {CoinsBalance}");
     }
 
     public void AddFragments(int amount) {
         FragmentsBalance += amount;
+        PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
         Debug.Log($"[GameManager] Fragments: {FragmentsBalance}");
     }
 
     public bool SpendCoins(int amount) {
         if (CoinsBalance >= amount) {
             CoinsBalance -= amount;
+            PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
             Debug.Log($"[GameManager] Spent {amount}, Balance: {CoinsBalance}");
             return true;
         }
@@ -69,6 +77,7 @@ public class GameManager : MonoBehaviour {
     public bool SpendFragments(int amount) {
         if (FragmentsBalance >= amount) {
             FragmentsBalance -= amount;
+            PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
             Debug.Log($"[GameManager] Spent {amount} fragments, Balance: {FragmentsBalance}");
             return true;
         }
@@ -78,11 +87,13 @@ public class GameManager : MonoBehaviour {
     public void UsePull() {
         if (CurrentPulls > 0) {
             CurrentPulls--;
+            PanelManager.Instance?.UpdatePullsDisplay(CurrentPulls);
         }
     }
 
     public void ResetPulls() {
         CurrentPulls = maxPullsPerTurn;
+        PanelManager.Instance?.UpdatePullsDisplay(CurrentPulls);
     }
 
     public void AdvanceTurn() {
@@ -90,8 +101,10 @@ public class GameManager : MonoBehaviour {
         if (CurrentTurn > turnsPerRound) {
             CurrentTurn = 1;
             CurrentRound++;
+            PanelManager.Instance?.UpdateRoundDisplay(CurrentRound);
         }
         ResetPulls();
+        PanelManager.Instance?.UpdateTurnDisplay(CurrentTurn, TurnsPerRound);
         Debug.Log($"[GameManager] Turn {CurrentTurn} / Round {CurrentRound}");
 
         if (PanelManager.Instance != null) {
@@ -103,6 +116,13 @@ public class GameManager : MonoBehaviour {
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OpenPanel(shopPanelIndex);
         }
+    }
+
+    private void NotifyAllUI() {
+        PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
+        PanelManager.Instance?.UpdatePullsDisplay(CurrentPulls);
+        PanelManager.Instance?.UpdateTurnDisplay(CurrentTurn, TurnsPerRound);
+        PanelManager.Instance?.UpdateRoundDisplay(CurrentRound);
     }
 
     public bool CanAfford(int cost) => CoinsBalance >= cost;

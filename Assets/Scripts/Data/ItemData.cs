@@ -8,4 +8,11 @@ public class ItemData : ScriptableObject {
     public float weight = 1f;
     [Range(0f, 1f)]
     public float magneticAttraction = 1f;
+    public ItemType itemType;
+}
+
+public enum ItemType {
+    Coin,
+    Fragment,
+    Artifact
 }
