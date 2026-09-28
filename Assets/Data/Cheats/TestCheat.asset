@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 725498d2fe02c4745a17bd703343017a, type: 3}
   m_Name: TestCheat
   m_EditorClassIdentifier: Assembly-CSharp::CheatData
+  itemName: xcv
+  prefab: {fileID: 0}
+  value: 0
+  weight: 1
+  magneticAttraction: 1
+  itemType: 0
   cheatName: TestCheat
   description: dfsfs
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}

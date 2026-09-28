@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -29,6 +30,11 @@ public class GameManager : MonoBehaviour {
     public bool IsTurnActive => CurrentPulls > 0;
     public bool IsRoundComplete => CurrentTurn >= turnsPerRound;
 
+    [Header("Inventory")]
+    [SerializeField] private List<InventoryItem> inventory = new List<InventoryItem>();
+
+    public IReadOnlyList<InventoryItem> Inventory => inventory;
+
     private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
@@ -49,6 +55,7 @@ public class GameManager : MonoBehaviour {
         CurrentPulls = maxPullsPerTurn;
         CurrentTurn = 1;
         CurrentRound = 1;
+        inventory.Clear();
         NotifyAllUI();
     }
 
@@ -118,6 +125,35 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public void AddItemToInventory(ItemData itemData) {
+        var existing = inventory.Find(i => i.itemData == itemData);
+        if (existing != null) {
+            existing.quantity++;
+        } else {
+            inventory.Add(new InventoryItem { itemData = itemData, quantity = 1 });
+        }
+        Debug.Log($"[GameManager] Added to inventory: {itemData.itemName} (qty: {GetItemQuantity(itemData)})");
+    }
+
+    public int GetItemQuantity(ItemData itemData) {
+        var existing = inventory.Find(i => i.itemData == itemData);
+        return existing != null ? existing.quantity : 0;
+    }
+
+    public bool HasItem(ItemData itemData, int quantity = 1) {
+        return GetItemQuantity(itemData) >= quantity;
+    }
+
+    public bool SpendItem(ItemData itemData, int quantity = 1) {
+        var existing = inventory.Find(i => i.itemData == itemData);
+        if (existing != null && existing.quantity >= quantity) {
+            existing.quantity -= quantity;
+            if (existing.quantity <= 0) inventory.Remove(existing);
+            return true;
+        }
+        return false;
+    }
+
     private void NotifyAllUI() {
         PanelManager.Instance?.UpdateCurrencyDisplay(CoinsBalance, FragmentsBalance);
         PanelManager.Instance?.UpdatePullsDisplay(CurrentPulls);
@@ -127,4 +163,10 @@ public class GameManager : MonoBehaviour {
 
     public bool CanAfford(int cost) => CoinsBalance >= cost;
     public bool CanAffordFragments(int cost) => FragmentsBalance >= cost;
+}
+
+[System.Serializable]
+public class InventoryItem {
+    public ItemData itemData;
+    public int quantity;
 }

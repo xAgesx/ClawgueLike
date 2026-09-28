@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CheatData", menuName = "ClawgueLike/Shop/Cheat Data")]
-public class CheatData : ScriptableObject {
+public class CheatData : ItemData {
     public string cheatName;
     public string description;
     public Sprite icon;

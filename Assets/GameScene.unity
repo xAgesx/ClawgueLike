@@ -4705,8 +4705,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ecdb8340502f32f48bc298b9ac3ca379, type: 2}
   relicPool:
   - {fileID: 11400000, guid: 051dc4c366a951947a7d7b3a6a561bc2, type: 2}
+  - {fileID: 11400000, guid: fff6207955bc2e74687a70c8124cb7f5, type: 2}
+  - {fileID: 11400000, guid: 86f337de7b8092f48832fcb747a02a8f, type: 2}
   cheatPool:
   - {fileID: 11400000, guid: 15bb0db3c1f706447b665fcf33fc84c6, type: 2}
+  - {fileID: 11400000, guid: 97f90c511ad5b0d47bd7a8dcc323c6d4, type: 2}
+  - {fileID: 11400000, guid: 7f6dc927d75a31b449025c465aa9845f, type: 2}
   baseCoinSlots: 4
   baseRelicSlots: 3
   baseCheatSlots: 3
@@ -72155,6 +72159,7 @@ MonoBehaviour:
   shopPanelIndex: 0
   shopOpenDelay: 2
   refillDelay: 1
+  inventory: []
 --- !u!114 &1619081642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72193,37 +72198,37 @@ MonoBehaviour:
     unavailableOverlay: {fileID: 0}
     buyButton: {fileID: 1575607400}
   relicSlots:
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+  - icon: {fileID: 606785296}
+    nameText: {fileID: 305748791}
+    priceText: {fileID: 879082387}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+    buyButton: {fileID: 877369495}
+  - icon: {fileID: 1664243387}
+    nameText: {fileID: 1787794002}
+    priceText: {fileID: 151269842}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+    buyButton: {fileID: 713532414}
+  - icon: {fileID: 1761176363}
+    nameText: {fileID: 1517689267}
+    priceText: {fileID: 1591213940}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
+    buyButton: {fileID: 1069056982}
   cheatSlots:
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+  - icon: {fileID: 112027776}
+    nameText: {fileID: 2100988638}
+    priceText: {fileID: 1415950681}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+    buyButton: {fileID: 1994768292}
+  - icon: {fileID: 1912762773}
+    nameText: {fileID: 1791296484}
+    priceText: {fileID: 528007915}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
-  - icon: {fileID: 0}
-    nameText: {fileID: 0}
-    priceText: {fileID: 0}
+    buyButton: {fileID: 1055225971}
+  - icon: {fileID: 429327716}
+    nameText: {fileID: 2078306090}
+    priceText: {fileID: 859103667}
     unavailableOverlay: {fileID: 0}
-    buyButton: {fileID: 0}
+    buyButton: {fileID: 1657181469}
   rerollButton: {fileID: 757131069}
   rerollButtonText: {fileID: 0}
   rerollCostText: {fileID: 522783227}

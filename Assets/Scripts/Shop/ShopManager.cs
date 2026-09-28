@@ -200,6 +200,7 @@ public class ShopManager : MonoBehaviour
         {
             entry.isAvailable = false;
             purchasedCoinsThisSession.Add(entry.itemData);
+            GameManager.Instance.AddItemToInventory(entry.itemData);
             UpdateShopUI();
             OnItemPurchased?.Invoke();
             return true;
@@ -217,6 +218,7 @@ public class ShopManager : MonoBehaviour
         {
             entry.isAvailable = false;
             RerollSingleRelic(index);
+            GameManager.Instance.AddItemToInventory(entry.relicData);
             UpdateShopUI();
             OnItemPurchased?.Invoke();
             return true;
@@ -234,6 +236,7 @@ public class ShopManager : MonoBehaviour
         {
             entry.isAvailable = false;
             RerollSingleCheat(index);
+            GameManager.Instance.AddItemToInventory(entry.cheatData);
             UpdateShopUI();
             OnItemPurchased?.Invoke();
             return true;

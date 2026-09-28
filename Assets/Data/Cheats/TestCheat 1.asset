@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e2b1086b8553344eab77de883af2a76, type: 3}
-  m_Name: TestRelic
-  m_EditorClassIdentifier: Assembly-CSharp::RelicData
-  itemName: sdf
+  m_Script: {fileID: 11500000, guid: 725498d2fe02c4745a17bd703343017a, type: 3}
+  m_Name: TestCheat 1
+  m_EditorClassIdentifier: Assembly-CSharp::CheatData
+  itemName: sfs
   prefab: {fileID: 0}
   value: 0
   weight: 1
   magneticAttraction: 1
   itemType: 0
-  relicName: TestRelic
-  description: does something
+  cheatName: TestCheat
+  description: dfsfs
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  basePrice: 25
+  basePrice: 18
   effectType: 0
-  effectValue: 0
+  effectValue: 1
+  duration: 5

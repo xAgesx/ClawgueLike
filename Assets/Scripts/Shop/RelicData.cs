@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "RelicData", menuName = "ClawgueLike/Shop/Relic Data")]
-public class RelicData : ScriptableObject {
+public class RelicData : ItemData {
     public string relicName;
     public string description;
     public Sprite icon;

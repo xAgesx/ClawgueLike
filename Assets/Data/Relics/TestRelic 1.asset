@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e2b1086b8553344eab77de883af2a76, type: 3}
-  m_Name: TestRelic
+  m_Name: TestRelic 1
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
-  itemName: sdf
+  itemName: cxv
   prefab: {fileID: 0}
   value: 0
   weight: 1
