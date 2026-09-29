@@ -24,6 +24,9 @@ public class RoundsManager : MonoBehaviour {
 
     private void Start() {
         GameManager.Instance.ResetGame();
+        if (itemSpawner != null) {
+            itemSpawner.SpawnNormalCoins();
+        }
         BeginTurn();
     }
 
@@ -39,6 +42,10 @@ public class RoundsManager : MonoBehaviour {
 
     private void BeginTurn() {
         isTurnActive = true;
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.ClosePanel(GameManager.Instance.shopPanelIndex);
+            PanelManager.Instance.OpenPanel(GameManager.Instance.shopPanelIndex);
+        }
     }
 
     private void EndTurn() {
@@ -64,7 +71,7 @@ private System.Collections.IEnumerator EndRoundSequence() {
 
         yield return new WaitForSecondsRealtime(GameManager.Instance.RefillDelay);
         if (itemSpawner != null) {
-            itemSpawner.SpawnItems();
+            itemSpawner.SpawnRoundAndSpecialCoins();
             itemsSpawnedThisRound += itemsPerSpawn;
         }
         GameManager.Instance.AdvanceTurn();

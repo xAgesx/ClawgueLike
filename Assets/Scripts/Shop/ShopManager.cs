@@ -71,6 +71,13 @@ public class ShopManager : MonoBehaviour
         InitializeShop();
     }
 
+    private void OnDisable()
+    {
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.OnShopClosed -= OnShopClosed;
+        }
+    }
+
     private void InitializeShop()
     {
         currentRound = GameManager.Instance != null ? GameManager.Instance.CurrentRound : 1;
@@ -78,6 +85,10 @@ public class ShopManager : MonoBehaviour
         currentCoinSlots = baseCoinSlots + coinSlotUpgradeLevel;
         currentRelicSlots = baseRelicSlots + relicSlotUpgradeLevel;
         currentCheatSlots = baseCheatSlots + cheatSlotUpgradeLevel;
+
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.OnShopClosed += OnShopClosed;
+        }
 
         RerollAll();
         UpdateShopUI();
@@ -356,5 +367,6 @@ public class ShopManager : MonoBehaviour
     {
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
+        UpdateShopUI();
     }
 }

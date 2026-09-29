@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemSpawner : MonoBehaviour {
-    [SerializeField] private ItemData[] itemPool;
+    [Header("Normal Coins")]
+    [SerializeField] private ItemData[] normalCoinPool;
+    [SerializeField] private int normalCoinsPerRound = 10;
+
+    [Header("Special Coins")]
+    [SerializeField] private ItemData[] specialCoinPool;
+    [SerializeField] private int specialCoinsPerTurn = 4;
+
+    [Header("Spawn Settings")]
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private int itemsPerRound = 10;
     [SerializeField] private float spawnInterval = 0.5f;
     [SerializeField] private Transform parentContainer;
     [SerializeField] private int initialPoolSize = 100;
-    [SerializeField] private bool spawnOnStart = true;
-
-    public bool spawnItems;
 
     [Header("Debug")]
     public int spawnedCount;
@@ -21,11 +25,7 @@ public class ItemSpawner : MonoBehaviour {
     private List<GameObject> activeItems = new List<GameObject>();
 
     private void OnValidate() {
-        if (spawnItems && !isSpawning) {
-            SpawnItems();
-        } else if (!spawnItems && isSpawning) {
-            StopSpawning();
-        }
+        // Removed spawnItems logic
     }
 
     private void Start() {
@@ -34,33 +34,70 @@ public class ItemSpawner : MonoBehaviour {
             return;
         }
 
-        if (itemPool == null || itemPool.Length == 0) {
-            Debug.LogError("ItemSpawner requires at least one item in the pool.");
+        if ((normalCoinPool == null || normalCoinPool.Length == 0) && 
+            (specialCoinPool == null || specialCoinPool.Length == 0)) {
+            Debug.LogError("ItemSpawner requires at least one item pool.");
             return;
         }
 
         InitializePools();
-
-        if (spawnOnStart) {
-            SpawnItems();
-        }
     }
 
     private void InitializePools() {
-        foreach (ItemData item in itemPool) {
-            if (!pools.ContainsKey(item)) {
-                GameObject poolParent = new GameObject($"Pool_{item.itemName}");
-                poolParent.transform.SetParent(transform);
-                pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
+        if (normalCoinPool != null) {
+            foreach (ItemData item in normalCoinPool) {
+                if (!pools.ContainsKey(item)) {
+                    GameObject poolParent = new GameObject($"Pool_{item.itemName}");
+                    poolParent.transform.SetParent(transform);
+                    pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
+                }
+            }
+        }
+
+        if (specialCoinPool != null) {
+            foreach (ItemData item in specialCoinPool) {
+                if (!pools.ContainsKey(item)) {
+                    GameObject poolParent = new GameObject($"Pool_{item.itemName}");
+                    poolParent.transform.SetParent(transform);
+                    pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
+                }
             }
         }
     }
 
-    public void SpawnItems() {
+    /// <summary>
+    /// Spawns normal coins only (called at start of each round)
+    /// </summary>
+    public void SpawnNormalCoins() {
         if (isSpawning) return;
+        if (normalCoinPool == null || normalCoinPool.Length == 0) return;
+
         isSpawning = true;
         spawnedCount = 0;
-        StartCoroutine(SpawnRoutine());
+        StartCoroutine(SpawnNormalCoinsRoutine());
+    }
+
+    /// <summary>
+    /// Spawns SpecialCoins only (called when shop exits / new turn starts)
+    /// </summary>
+    public void SpawnSpecialCoins() {
+        if (isSpawning) return;
+        if (specialCoinPool == null || specialCoinPool.Length == 0) return;
+
+        isSpawning = true;
+        spawnedCount = 0;
+        StartCoroutine(SpawnSpecialCoinsRoutine());
+    }
+
+    /// <summary>
+    /// Spawns normal coins first, then SpecialCoins (called at end of round)
+    /// </summary>
+    public void SpawnRoundAndSpecialCoins() {
+        if (isSpawning) return;
+
+        isSpawning = true;
+        spawnedCount = 0;
+        StartCoroutine(SpawnRoundAndSpecialRoutine());
     }
 
     public void StopSpawning() {
@@ -81,9 +118,15 @@ public class ItemSpawner : MonoBehaviour {
         spawnedCount = 0;
     }
 
-    private IEnumerator SpawnRoutine() {
-        while (spawnedCount < itemsPerRound) {
-            SpawnItem();
+    private IEnumerator SpawnNormalCoinsRoutine() {
+        int count = normalCoinsPerRound;
+        if (normalCoinPool == null || normalCoinPool.Length == 0) {
+            isSpawning = false;
+            yield break;
+        }
+
+        while (spawnedCount < count) {
+            SpawnNormalCoin();
             spawnedCount++;
             yield return new WaitForSeconds(spawnInterval);
         }
@@ -91,8 +134,63 @@ public class ItemSpawner : MonoBehaviour {
         isSpawning = false;
     }
 
-    private void SpawnItem() {
-        ItemData itemData = itemPool[Random.Range(0, itemPool.Length)];
+    private IEnumerator SpawnSpecialCoinsRoutine() {
+        int count = specialCoinsPerTurn;
+        if (specialCoinPool == null || specialCoinPool.Length == 0) {
+            isSpawning = false;
+            yield break;
+        }
+
+        while (spawnedCount < count) {
+            SpawnSpecialCoin();
+            spawnedCount++;
+            yield return new WaitForSeconds(spawnInterval);
+        }
+
+        isSpawning = false;
+    }
+
+    private IEnumerator SpawnRoundAndSpecialRoutine() {
+        // First spawn normal coins
+        if (normalCoinPool != null && normalCoinPool.Length > 0) {
+            while (spawnedCount < normalCoinsPerRound) {
+                SpawnNormalCoin();
+                spawnedCount++;
+                yield return new WaitForSeconds(spawnInterval);
+            }
+        }
+
+        // Then spawn special coins
+        if (specialCoinPool != null && specialCoinPool.Length > 0) {
+            int specialSpawned = 0;
+            while (specialSpawned < specialCoinsPerTurn) {
+                SpawnSpecialCoin();
+                specialSpawned++;
+                spawnedCount++;
+                yield return new WaitForSeconds(spawnInterval);
+            }
+        }
+
+        isSpawning = false;
+    }
+
+    private void SpawnNormalCoin() {
+        if (normalCoinPool == null || normalCoinPool.Length == 0) return;
+
+        ItemData itemData = normalCoinPool[Random.Range(0, normalCoinPool.Length)];
+        Vector3 spawnPosition = CalculateSpawnPosition();
+        Quaternion spawnRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+
+        ObjectPool pool = pools[itemData];
+        GameObject item = pool.Get(spawnPosition, spawnRotation);
+        item.name = itemData.itemName;
+        activeItems.Add(item);
+    }
+
+    private void SpawnSpecialCoin() {
+        if (specialCoinPool == null || specialCoinPool.Length == 0) return;
+
+        ItemData itemData = specialCoinPool[Random.Range(0, specialCoinPool.Length)];
         Vector3 spawnPosition = CalculateSpawnPosition();
         Quaternion spawnRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
@@ -103,10 +201,11 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private ItemData GetItemDataByName(string name) {
-        foreach (ItemData item in itemPool) {
-            if (item.itemName == name) {
-                return item;
-            }
+        foreach (ItemData item in normalCoinPool) {
+            if (item.itemName == name) return item;
+        }
+        foreach (ItemData item in specialCoinPool) {
+            if (item.itemName == name) return item;
         }
         return null;
     }

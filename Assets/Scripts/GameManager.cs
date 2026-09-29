@@ -114,13 +114,16 @@ public class GameManager : MonoBehaviour {
         PanelManager.Instance?.UpdateTurnDisplay(CurrentTurn, TurnsPerRound);
         Debug.Log($"[GameManager] Turn {CurrentTurn} / Round {CurrentRound}");
 
-        if (PanelManager.Instance != null) {
+        // Only open shop on turns 2+, not on first turn
+        if (CurrentTurn > 1 && PanelManager.Instance != null) {
+            PanelManager.Instance.ClosePanel(shopPanelIndex);
             PanelManager.Instance.OpenPanel(shopPanelIndex);
         }
     }
 
     public void OpenShopPanel() {
         if (PanelManager.Instance != null) {
+            PanelManager.Instance.ClosePanel(shopPanelIndex);
             PanelManager.Instance.OpenPanel(shopPanelIndex);
         }
     }

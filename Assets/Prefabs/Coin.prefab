@@ -155,9 +155,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Poolable
-  sleepVelocity: 0.02
-  sleepAngularVelocity: 0.02
-  sleepDelay: 50
+  sleepVelocity: 5
+  sleepAngularVelocity: 5
+  sleepDelay: 5000
 --- !u!114 &4360995424809601569
 MonoBehaviour:
   m_ObjectHideFlags: 0
