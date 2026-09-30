@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour {
 
     [Header("Shop")]
     [SerializeField] public int shopPanelIndex = 0;
+    [SerializeField] public int gameOverPanelIndex = 1;
     [SerializeField] private float shopOpenDelay = 2f;
     [SerializeField] private float refillDelay = 1f;
 

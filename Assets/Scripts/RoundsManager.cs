@@ -8,7 +8,8 @@ public class RoundsManager : MonoBehaviour {
     [SerializeField] private int itemsPerSpawn = 50;
 
     [Header("Costs")]
-    [SerializeField] private int resupplyCost = 20;
+    [SerializeField] private int[] resupplyCosts = new int[20];
+    [SerializeField] private float resupplyCostMultiplier = 1.5f;
     public bool IsTurnActive => isTurnActive;
 
     private bool isTurnActive;
@@ -60,8 +61,28 @@ public class RoundsManager : MonoBehaviour {
     }
 
     private void EndRound() {
-        if (GameManager.Instance.SpendCoins(resupplyCost)) {
+        int currentRound = GameManager.Instance.CurrentRound;
+        int cost;
+        
+        if (currentRound <= resupplyCosts.Length && resupplyCosts[currentRound - 1] > 0) {
+            cost = resupplyCosts[currentRound - 1];
+        } else {
+            int lastIndex = Mathf.Min(currentRound - 2, resupplyCosts.Length - 1);
+            int baseCost = lastIndex >= 0 ? resupplyCosts[lastIndex] : 20;
+            cost = Mathf.RoundToInt(baseCost * Mathf.Pow(resupplyCostMultiplier, currentRound - resupplyCosts.Length - 1));
+        }
+        
+        
+        if (GameManager.Instance.SpendCoins(cost)) {
             StartCoroutine(EndRoundSequence());
+        } else {
+            GameOver();
+        }
+    }
+
+    private void GameOver() {
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.OpenPanel(GameManager.Instance.gameOverPanelIndex);
         }
     }
 
