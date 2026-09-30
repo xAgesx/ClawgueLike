@@ -102,7 +102,7 @@ public class Controller : MonoBehaviour {
     }
 
     private void OnDrop(InputAction.CallbackContext ctx) {
-        if (!isDropping && verticalAxis != null) {
+        if (!isDropping && verticalAxis != null && dropLockTimer <= 0f && RoundsManager.Instance != null && RoundsManager.Instance.IsTurnActive) {
             StartCoroutine(DropRoutine());
         }
     }
