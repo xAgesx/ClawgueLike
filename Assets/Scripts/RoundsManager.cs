@@ -13,6 +13,7 @@ public class RoundsManager : MonoBehaviour {
     public bool IsTurnActive => isTurnActive;
 
     private bool isTurnActive;
+    private bool isTransitioning;
     private int itemsSpawnedThisRound;
 
     private void Awake() {
@@ -31,6 +32,25 @@ public class RoundsManager : MonoBehaviour {
         BeginTurn();
     }
 
+    private void OnEnable() {
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.OnShopClosed += OnShopClosed;
+        }
+    }
+
+    private void OnDisable() {
+        if (PanelManager.Instance != null) {
+            PanelManager.Instance.OnShopClosed -= OnShopClosed;
+        }
+    }
+
+    private void OnShopClosed() {
+        if (isTransitioning) return;
+        if (itemSpawner != null) {
+            itemSpawner.SpawnInventoryCoins();
+        }
+    }
+
     public void OnPullUsed() {
         if (!isTurnActive) return;
 
@@ -43,10 +63,12 @@ public class RoundsManager : MonoBehaviour {
 
     private void BeginTurn() {
         isTurnActive = true;
+        isTransitioning = true;
         if (PanelManager.Instance != null) {
             PanelManager.Instance.ClosePanel(GameManager.Instance.shopPanelIndex);
             PanelManager.Instance.OpenPanel(GameManager.Instance.shopPanelIndex);
         }
+        isTransitioning = false;
     }
 
     private void EndTurn() {
@@ -87,18 +109,20 @@ public class RoundsManager : MonoBehaviour {
     }
 
 private System.Collections.IEnumerator EndRoundSequence() {
+        isTransitioning = true;
         yield return new WaitForSecondsRealtime(GameManager.Instance.ShopOpenDelay);
         GameManager.Instance.OpenShopPanel();
 
         yield return new WaitForSecondsRealtime(GameManager.Instance.RefillDelay);
         if (itemSpawner != null) {
-            itemSpawner.SpawnRoundAndSpecialCoins();
+            itemSpawner.SpawnRoundAndInventoryCoins();
             itemsSpawnedThisRound += itemsPerSpawn;
         }
         GameManager.Instance.AdvanceTurn();
         BeginTurn();
+        isTransitioning = false;
     }
-    }
+}
 
 
 

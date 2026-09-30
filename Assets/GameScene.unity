@@ -55910,9 +55910,7 @@ MonoBehaviour:
   normalCoinPool:
   - {fileID: 11400000, guid: 3baa411a47ce5ff40bcc6731f5aff9d7, type: 2}
   normalCoinsPerRound: 50
-  specialCoinPool:
-  - {fileID: 11400000, guid: d0b91a8cf2d4754439bd8976dd78163b, type: 2}
-  specialCoinsPerTurn: 4
+  inventoryCoinsPerTurn: 4
   spawnPoints:
   - {fileID: 8039845}
   - {fileID: 1088216873}
