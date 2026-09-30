@@ -72159,6 +72159,7 @@ MonoBehaviour:
   maxPullsPerTurn: 2
   turnsPerRound: 3
   shopPanelIndex: 0
+  gameOverPanelIndex: 1
   shopOpenDelay: 2
   refillDelay: 1
   inventory: []
@@ -72176,6 +72177,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PanelManager
   panels:
   - panel: {fileID: 1278969031}
+    pauseGame: 1
+  - panel: {fileID: 1745473714}
     pauseGame: 1
   gameUIPanel: {fileID: 1367993603}
   coinSlots:
