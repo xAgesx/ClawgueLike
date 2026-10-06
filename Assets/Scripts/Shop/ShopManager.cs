@@ -7,7 +7,7 @@ public class ShopManager : MonoBehaviour
     public static ShopManager Instance { get; private set; }
 
     [Header("Item Pools")]
-    [SerializeField] private List<ShopItemData> coinPool = new List<ShopItemData>();
+    [SerializeField] private List<CoinData> coinPool = new List<CoinData>();
     [SerializeField] private List<RelicData> relicPool = new List<RelicData>();
     [SerializeField] private List<CheatData> cheatPool = new List<CheatData>();
 
@@ -44,7 +44,7 @@ public class ShopManager : MonoBehaviour
     private List<RelicEntry> currentRelics = new List<RelicEntry>();
     private List<CheatEntry> currentCheats = new List<CheatEntry>();
 
-    private List<ShopItemData> purchasedCoinsThisSession = new List<ShopItemData>();
+    private List<CoinData> purchasedCoinsThisSession = new List<CoinData>();
     private int rerollsThisSession = 0;
 
     public event Action OnShopRefreshed;
@@ -132,7 +132,7 @@ public class ShopManager : MonoBehaviour
     private void RerollCoins()
     {
         currentCoins.Clear();
-        var available = new List<ShopItemData>(coinPool);
+        var available = new List<CoinData>(coinPool);
         available.RemoveAll(item => purchasedCoinsThisSession.Contains(item));
 
         int count = Mathf.Min(currentCoinSlots, available.Count);
@@ -342,7 +342,7 @@ public class ShopManager : MonoBehaviour
     [Serializable]
     public class ShopItemEntry
     {
-        public ShopItemData itemData;
+        public CoinData itemData;
         public int price;
         public bool isAvailable;
     }

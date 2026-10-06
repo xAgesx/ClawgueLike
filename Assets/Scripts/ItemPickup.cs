@@ -5,4 +5,8 @@ public class ItemPickup : MonoBehaviour {
     [SerializeField] private ItemData itemData;
 
     public ItemData ItemData => itemData;
+
+    public void SetItemData(ItemData data) {
+        itemData = data;
+    }
 }

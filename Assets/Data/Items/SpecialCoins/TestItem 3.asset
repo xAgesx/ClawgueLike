@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a4b4ba33dec65e42bf383f63570df76, type: 3}
-  m_Name: TestItem
-  m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
-  itemName: TestItem
+  m_Script: {fileID: 11500000, guid: 16e8cd743ca544028b123797098b7dac, type: 3}
+  m_Name: TestItem 3
+  m_EditorClassIdentifier: Assembly-CSharp::CoinData
+  itemName: 3
   prefab: {fileID: 7880067690139979386, guid: bfdc1f7a74a854c4eb3ba484810347c0, type: 3}
-  value: 0
+  baseValue: 0
   weight: 1
   magneticAttraction: 1
   itemType: 0
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  basePrice: 8
+  basePrice: 4

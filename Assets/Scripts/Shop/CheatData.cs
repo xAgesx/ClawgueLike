@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CheatData", menuName = "ClawgueLike/Shop/Cheat Data")]
+[CreateAssetMenu(fileName = "CheatData", menuName = "Data/Items/Cheats/Cheat Data")]
 public class CheatData : ItemData {
     public string cheatName;
     public string description;

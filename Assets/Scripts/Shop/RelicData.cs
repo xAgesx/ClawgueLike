@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "RelicData", menuName = "ClawgueLike/Shop/Relic Data")]
+[CreateAssetMenu(fileName = "RelicData", menuName = "Data/Items/Relics/Relic Data")]
 public class RelicData : ItemData {
     public string relicName;
     public string description;

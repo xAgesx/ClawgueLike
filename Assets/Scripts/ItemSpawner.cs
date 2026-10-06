@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ItemSpawner : MonoBehaviour {
     [Header("Normal Coins")]
-    [SerializeField] private ItemData[] normalCoinPool;
+    [SerializeField] private CoinData[] normalCoinPool;
     [SerializeField] private int normalCoinsPerRound = 10;
 
     [Header("Inventory Coins (spawned per turn)")]
@@ -42,7 +42,7 @@ public class ItemSpawner : MonoBehaviour {
 
     private void InitializePools() {
         if (normalCoinPool != null) {
-            foreach (ItemData item in normalCoinPool) {
+            foreach (CoinData item in normalCoinPool) {
                 if (!pools.ContainsKey(item)) {
                     GameObject poolParent = new GameObject($"Pool_{item.itemName}");
                     poolParent.transform.SetParent(transform);
@@ -76,7 +76,6 @@ public class ItemSpawner : MonoBehaviour {
     /// Spawns coins from player inventory (called when shop exits / new turn starts)
     /// </summary>
     public void SpawnInventoryCoins() {
-        if (isSpawning) return;
         if (GameManager.Instance == null) return;
 
         var inventory = GameManager.Instance.Inventory;
@@ -85,9 +84,17 @@ public class ItemSpawner : MonoBehaviour {
             return;
         }
 
+        StartCoroutine(SpawnInventoryWhenFree());
+    }
+
+    // SpawnNormalCoins is still running for ~5s at round start. Exiting the shop
+    // before it finishes used to silently drop the whole request, so wait our turn.
+    private IEnumerator SpawnInventoryWhenFree() {
+        while (isSpawning) yield return null;
+
         isSpawning = true;
-        spawnedCount = 0;
-        StartCoroutine(SpawnInventoryCoinsRoutine());
+        yield return SpawnInventoryCoinsRoutine();
+        isSpawning = false;
     }
 
     /// <summary>
@@ -136,37 +143,41 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private IEnumerator SpawnInventoryCoinsRoutine() {
-        List<ItemData> coinItems = GetInventoryCoinItems();
-        if (coinItems.Count == 0) {
-            isSpawning = false;
-            yield break;
+        // Special coins carry effects and are the whole point of buying them, so
+        // they always spawn. Regular bonus coins stay capped per turn.
+        foreach (CoinData special in GetInventoryCoins(true)) {
+            SpawnInventoryCoin(special);
+            GameManager.Instance.SpendItem(special, 1);
+            spawnedCount++;
+            yield return new WaitForSeconds(spawnInterval);
         }
 
-        int count = Mathf.Min(inventoryCoinsPerTurn, coinItems.Count);
+        List<CoinData> coins = GetInventoryCoins(false);
+        int count = Mathf.Min(inventoryCoinsPerTurn, coins.Count);
         for (int i = 0; i < count; i++) {
-            ItemData itemData = coinItems[Random.Range(0, coinItems.Count)];
+            int index = Random.Range(0, coins.Count);
+            CoinData itemData = coins[index];
+            coins.RemoveAt(index);
             SpawnInventoryCoin(itemData);
             GameManager.Instance.SpendItem(itemData, 1);
             spawnedCount++;
             yield return new WaitForSeconds(spawnInterval);
         }
-
-        isSpawning = false;
     }
 
-    private List<ItemData> GetInventoryCoinItems() {
-        List<ItemData> coinItems = new List<ItemData>();
+    private List<CoinData> GetInventoryCoins(bool special) {
+        List<CoinData> result = new List<CoinData>();
         var inventory = GameManager.Instance?.Inventory;
-        if (inventory == null) return coinItems;
+        if (inventory == null) return result;
 
         foreach (var invItem in inventory) {
-            if (invItem.itemData != null && invItem.itemData.itemType == ItemType.Coin) {
-                for (int i = 0; i < invItem.quantity; i++) {
-                    coinItems.Add(invItem.itemData);
-                }
+            CoinData coin = invItem.itemData as CoinData;
+            if (coin == null || coin.IsSpecial != special) continue;
+            for (int i = 0; i < invItem.quantity; i++) {
+                result.Add(coin);
             }
         }
-        return coinItems;
+        return result;
     }
 
     private IEnumerator SpawnRoundAndInventoryRoutine() {
@@ -185,17 +196,18 @@ public class ItemSpawner : MonoBehaviour {
     private void SpawnNormalCoin() {
         if (normalCoinPool == null || normalCoinPool.Length == 0) return;
 
-        ItemData itemData = normalCoinPool[Random.Range(0, normalCoinPool.Length)];
+        CoinData itemData = normalCoinPool[Random.Range(0, normalCoinPool.Length)];
         Vector3 spawnPosition = CalculateSpawnPosition();
         Quaternion spawnRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
         ObjectPool pool = pools[itemData];
         GameObject item = pool.Get(spawnPosition, spawnRotation);
         item.name = itemData.itemName;
+        BindItemData(item, itemData);
         activeItems.Add(item);
     }
 
-    private void SpawnInventoryCoin(ItemData itemData) {
+    private void SpawnInventoryCoin(CoinData itemData) {
         if (itemData == null) return;
 
         EnsurePoolExists(itemData);
@@ -206,11 +218,27 @@ public class ItemSpawner : MonoBehaviour {
         ObjectPool pool = pools[itemData];
         GameObject item = pool.Get(spawnPosition, spawnRotation);
         item.name = itemData.itemName;
+        BindItemData(item, itemData);
         activeItems.Add(item);
     }
 
+    // Guarantees the spawned object points back at the asset it came from and that
+    // its runtime CoinInstance has this round's baseValue. Adding CoinInstance for
+    // anyone who forgot it on the prefab is cheaper than a silent payout of 1.
+    private void BindItemData(GameObject item, ItemData itemData) {
+        ItemPickup pickup = item.GetComponent<ItemPickup>();
+        if (pickup != null) pickup.SetItemData(itemData);
+
+        CoinData coinData = itemData as CoinData;
+        if (coinData == null) return;
+
+        CoinInstance coin = item.GetComponent<CoinInstance>();
+        if (coin == null) coin = item.AddComponent<CoinInstance>();
+        coin.Initialize(coinData);
+    }
+
     private ItemData GetItemDataByName(string name) {
-        foreach (ItemData item in normalCoinPool) {
+        foreach (CoinData item in normalCoinPool) {
             if (item.itemName == name) return item;
         }
         foreach (var kvp in pools) {
