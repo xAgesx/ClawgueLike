@@ -150,6 +150,8 @@ public class PanelManager : MonoBehaviour {
         return panels[index].panel != null && panels[index].panel.activeSelf;
     }
 
+    public bool IsAnyPanelOpen => openPanelCount > 0;
+
     // Shop UI Updates
     public void UpdateShopCoins(List<ShopManager.ShopItemEntry> coins) {
         for (int i = 0; i < coinSlots.Count; i++) {
@@ -164,12 +166,14 @@ public class PanelManager : MonoBehaviour {
                 if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
                 if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+                SetSlotInfo(slot.icon, slot.nameText, data.itemName, data.description);
             } else {
                 if (slot.icon != null) slot.icon.sprite = null;
                 if (slot.nameText != null) slot.nameText.text = "";
                 if (slot.priceText != null) slot.priceText.text = "";
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
                 if (slot.buyButton != null) slot.buyButton.interactable = false;
+                SetSlotInfo(slot.icon, slot.nameText, null, null);
             }
         }
     }
@@ -187,12 +191,14 @@ public class PanelManager : MonoBehaviour {
                 if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
                 if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+                SetSlotInfo(slot.icon, slot.nameText, data.relicName, data.description);
             } else {
                 if (slot.icon != null) slot.icon.sprite = null;
                 if (slot.nameText != null) slot.nameText.text = "";
                 if (slot.priceText != null) slot.priceText.text = "";
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
                 if (slot.buyButton != null) slot.buyButton.interactable = false;
+                SetSlotInfo(slot.icon, slot.nameText, null, null);
             }
         }
     }
@@ -210,12 +216,14 @@ public class PanelManager : MonoBehaviour {
                 if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
                 if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+                SetSlotInfo(slot.icon, slot.nameText, data.cheatName, data.description);
             } else {
                 if (slot.icon != null) slot.icon.sprite = null;
                 if (slot.nameText != null) slot.nameText.text = "";
                 if (slot.priceText != null) slot.priceText.text = "";
                 if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
                 if (slot.buyButton != null) slot.buyButton.interactable = false;
+                SetSlotInfo(slot.icon, slot.nameText, null, null);
             }
         }
     }
@@ -243,6 +251,32 @@ public class PanelManager : MonoBehaviour {
 
     public void UpdateRoundDisplay(int round) {
         OnRoundChanged?.Invoke(round);
+    }
+
+    // Hovering a shop card shows its name + description. The slot's own GameObject is
+    // never referenced directly, so the hover target is the common ancestor of the icon
+    // and the name label - for the current hierarchy that is the card root ("Item").
+    private static void SetSlotInfo(Image icon, TMP_Text nameText, string name, string description) {
+        Transform root = LowestCommonAncestor(icon, nameText);
+        if (root == null) return;
+
+        ItemInfoTrigger trigger = root.GetComponent<ItemInfoTrigger>();
+        if (trigger == null) trigger = root.gameObject.AddComponent<ItemInfoTrigger>();
+        trigger.SetInfo(name, description);
+    }
+
+    private static Transform LowestCommonAncestor(Image icon, TMP_Text nameText) {
+        if (icon == null && nameText == null) return null;
+        if (icon == null) return nameText.transform;
+        if (nameText == null) return icon.transform;
+
+        var ancestors = new HashSet<Transform>();
+        for (Transform t = icon.transform; t != null; t = t.parent) ancestors.Add(t);
+
+        for (Transform t = nameText.transform; t != null; t = t.parent) {
+            if (ancestors.Contains(t)) return t;
+        }
+        return null;
     }
 
     private void UpdateGameUIPanel() {
