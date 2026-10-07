@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ItemSpawner : MonoBehaviour {
+    public static ItemSpawner Instance { get; private set; }
+
     [Header("Normal Coins")]
     [SerializeField] private CoinData[] normalCoinPool;
     [SerializeField] private int normalCoinsPerRound = 10;
@@ -24,6 +26,14 @@ public class ItemSpawner : MonoBehaviour {
     private List<GameObject> activeItems = new List<GameObject>();
 
     private void OnValidate() {
+    }
+
+    private void Awake() {
+        Instance = this;
+    }
+
+    private void OnDestroy() {
+        if (Instance == this) Instance = null;
     }
 
     private void Start() {
@@ -52,11 +62,15 @@ public class ItemSpawner : MonoBehaviour {
         }
     }
 
-    private void EnsurePoolExists(ItemData itemData) {
+    // initialSize < 0 falls back to the scene-wide pool size. Effect-spawned coins pass
+    // a small number instead: ObjectPool pre-creates every instance in its constructor,
+    // so instantly building 100 prefabs in the middle of a physics callback is a hitch.
+    private void EnsurePoolExists(ItemData itemData, int initialSize = -1) {
         if (!pools.ContainsKey(itemData)) {
             GameObject poolParent = new GameObject($"Pool_{itemData.itemName}");
             poolParent.transform.SetParent(transform);
-            pools[itemData] = new ObjectPool(itemData.prefab, initialPoolSize, poolParent.transform);
+            int size = initialSize >= 0 ? initialSize : initialPoolSize;
+            pools[itemData] = new ObjectPool(itemData.prefab, size, poolParent.transform);
         }
     }
 
@@ -220,6 +234,29 @@ public class ItemSpawner : MonoBehaviour {
         item.name = itemData.itemName;
         BindItemData(item, itemData);
         activeItems.Add(item);
+    }
+
+    /// <summary>
+    /// Spawns a coin at an exact spot with an exact value. Used by effects that create
+    /// coins mid-game (a rabbit breeding, a mine bursting) rather than by the shop.
+    /// </summary>
+    public GameObject SpawnCoinAt(CoinData itemData, Vector3 position, int baseValue) {
+        if (itemData == null) return null;
+
+        EnsurePoolExists(itemData, 4);
+
+        ObjectPool pool = pools[itemData];
+        GameObject item = pool.Get(position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
+        item.name = itemData.itemName;
+        BindItemData(item, itemData);
+        activeItems.Add(item);
+
+        // BindItemData has just reset the value from the asset, so override it after.
+        if (baseValue > 0) {
+            CoinInstance coin = item.GetComponent<CoinInstance>();
+            if (coin != null) coin.SetBaseValue(baseValue);
+        }
+        return item;
     }
 
     // Guarantees the spawned object points back at the asset it came from and that

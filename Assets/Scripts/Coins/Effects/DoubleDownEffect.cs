@@ -6,7 +6,7 @@ public class DoubleDownEffect : CoinEffect {
     [SerializeField] private float factor = 2f;
     [SerializeField] private Color tint = Color.red;
 
-    public override void Apply(CoinInstance target) {
+    public override void Apply(CoinInstance target, SpecialCoin source) {
         target.MultiplyBaseValue(factor);
         target.SetTint(tint);
     }

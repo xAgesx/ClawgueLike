@@ -14,6 +14,9 @@ public class CoinData : ItemData {
     [Tooltip("Coins paid out per unit before any effects touch it.")]
     public int baseValue = 1;
 
+    [Tooltip("Coin family this belongs to (e.g. \"rabbit\"). Effects can filter on it. Empty = no family.")]
+    public string family = "";
+
     [Header("Effects")]
     [Tooltip("Abilities this coin applies to other coins it physically touches.")]
     public List<CoinEffect> effects = new List<CoinEffect>();

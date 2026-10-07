@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: -8641450092584723722}
   - component: {fileID: 6118842017091648240}
   m_Layer: 3
-  m_Name: Double Down
+  m_Name: MiniRabbitCoin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0.93, y: 3.22, z: -0.69}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0fd9629f8bf070c41a7d7f0d3f1921af, type: 2}
+  - {fileID: 2100000, guid: 54e114d9be862534da51264c58fac409, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickup
-  itemData: {fileID: 11400000, guid: 64e9af85d28a21e40b1d84ccfc3f92a1, type: 2}
+  itemData: {fileID: 11400000, guid: a88b174b3e7842e19e15a55ab5bf4bb9, type: 2}
 --- !u!114 &-8641450092584723722
 MonoBehaviour:
   m_ObjectHideFlags: 0
