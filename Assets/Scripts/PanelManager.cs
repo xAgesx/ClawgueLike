@@ -12,6 +12,7 @@ public class PanelManager : MonoBehaviour {
     public event Action<int, int> OnTurnChanged; // currentTurn, maxTurns
     public event Action<int> OnRoundChanged;
     public event Action OnShopClosed;
+    public event Action OnShopOpened;
 
     [System.Serializable]
     public class PanelEntry {
@@ -84,12 +85,19 @@ public class PanelManager : MonoBehaviour {
         var entry = panels[index];
         if (entry.panel == null) return;
 
-        if (!entry.panel.activeSelf) {
+        bool wasActive = entry.panel.activeSelf;
+
+        if (!wasActive) {
             openPanelCount++;
             UpdateGameUIPanel();
         }
 
         entry.panel.SetActive(true);
+
+        // Fired after the panel is live so subscribers can rebuild UI straight away.
+        if (!wasActive && index == GameManager.Instance?.shopPanelIndex) {
+            OnShopOpened?.Invoke();
+        }
 
         if (entry.pauseGame) {
             Time.timeScale = 0f;

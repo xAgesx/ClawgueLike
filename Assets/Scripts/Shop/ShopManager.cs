@@ -75,6 +75,7 @@ public class ShopManager : MonoBehaviour
     {
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OnShopClosed -= OnShopClosed;
+            PanelManager.Instance.OnShopOpened -= OnShopOpened;
         }
     }
 
@@ -88,10 +89,18 @@ public class ShopManager : MonoBehaviour
 
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OnShopClosed += OnShopClosed;
+            PanelManager.Instance.OnShopOpened += OnShopOpened;
         }
 
         RerollAll();
         UpdateShopUI();
+    }
+
+    // Walking back up to the shop should present a fresh board, not whatever was
+    // left sitting there from the last visit.
+    private void OnShopOpened()
+    {
+        RerollAll();
     }
 
     public void OnRoundStarted(int round)
