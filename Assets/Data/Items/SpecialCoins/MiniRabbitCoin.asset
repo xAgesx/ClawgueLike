@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: MiniRabbitCoin
   m_EditorClassIdentifier: Assembly-CSharp::CoinData
   itemName: MiniRabbitCoin
-  prefab: {fileID: 7880067690139979386, guid: a5a6d8bac7f61fb4f96e43b24dcedd62, type: 3}
+  prefab: {fileID: 7880067690139979386, guid: 0f06a0b7e31457b4f8c735c4f97d9ba1, type: 3}
   weight: 1
   magneticAttraction: 1
   itemType: 0
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 0
-  description: A newborn rabbit, born worth half of the rabbit that sired it. It does not breed.
+  description: A newborn rabbit, born worth half of the rabbit that sired it. It
+    does not breed.
   baseValue: 2
   family: rabbit
   effects: []

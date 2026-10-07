@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RabbitCoin
   m_EditorClassIdentifier: Assembly-CSharp::CoinData
   itemName: RabbitCoin
-  prefab: {fileID: 7880067690139979386, guid: a5a6d8bac7f61fb4f96e43b24dcedd62, type: 3}
+  prefab: {fileID: 7880067690139979386, guid: acd13b5ce1c60644baf6088ad1351346, type: 3}
   weight: 1
   magneticAttraction: 1
   itemType: 0

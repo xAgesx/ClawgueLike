@@ -4836,7 +4836,6 @@ MonoBehaviour:
   coinPool:
   - {fileID: 11400000, guid: d0b91a8cf2d4754439bd8976dd78163b, type: 2}
   - {fileID: 11400000, guid: bcc8b8e97a7ab784fb04730b39a35176, type: 2}
-  - {fileID: 11400000, guid: ab1dc1d5eaa7e7949b857a73285be41c, type: 2}
   - {fileID: 11400000, guid: 64e9af85d28a21e40b1d84ccfc3f92a1, type: 2}
   - {fileID: 11400000, guid: a88b174b3e7842e19e15a55ab5bf4bb9, type: 2}
   relicPool:
@@ -72512,7 +72511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4612031ffabc2174ca492b483f415af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  startingCoins: 0
+  startingCoins: 50
   startingFragments: 0
   maxPullsPerTurn: 2
   turnsPerRound: 3

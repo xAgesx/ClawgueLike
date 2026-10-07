@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f447f7c24d40f69f39b3733cd28850, type: 3}
   m_Name: Rabbit
   m_EditorClassIdentifier: Assembly-CSharp::RabbitEffect
-  affects:
-  - 0
+  affects: 00000000
   targetFamily: rabbit
   maxApplications: 1
   oncePerTarget: 0
-  offspring: {fileID: 11400000, guid: 1cf9ed7799b74c77b243ad00a4b3d87c, type: 2}
+  spendsPartner: 1
+  hopInterval: 2
+  hopForce: 2
+  spentTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  offspring: {fileID: 11400000, guid: a88b174b3e7842e19e15a55ab5bf4bb9, type: 2}
   offspringFraction: 0.5
   minOffspringValue: 1
   spawnHeight: 0.5

@@ -132,16 +132,15 @@ public class ShopManager : MonoBehaviour
     private void RerollCoins()
     {
         currentCoins.Clear();
-        var available = new List<CoinData>(coinPool);
-        available.RemoveAll(item => purchasedCoinsThisSession.Contains(item));
 
-        int count = Mathf.Min(currentCoinSlots, available.Count);
-        for (int i = 0; i < count; i++)
+        // Prefer coins not bought this round, but top up from the whole pool rather than
+        // leaving a row short: UpdateShopCoins renders any slot with no entry as
+        // unavailable, which reads to the player as "this slot is locked".
+        var items = PickSlots(coinPool, currentCoinSlots,
+            item => purchasedCoinsThisSession.Contains(item));
+
+        foreach (CoinData item in items)
         {
-            int idx = UnityEngine.Random.Range(0, available.Count);
-            var item = available[idx];
-            available.RemoveAt(idx);
-
             int price = CalculatePrice(item.basePrice, coinPriceMultiplier);
             currentCoins.Add(new ShopItemEntry { itemData = item, price = price, isAvailable = true });
         }
@@ -150,15 +149,9 @@ public class ShopManager : MonoBehaviour
     private void RerollRelics()
     {
         currentRelics.Clear();
-        var available = new List<RelicData>(relicPool);
 
-        int count = Mathf.Min(currentRelicSlots, available.Count);
-        for (int i = 0; i < count; i++)
+        foreach (RelicData item in PickSlots(relicPool, currentRelicSlots))
         {
-            int idx = UnityEngine.Random.Range(0, available.Count);
-            var item = available[idx];
-            available.RemoveAt(idx);
-
             int price = CalculatePrice(item.basePrice, relicPriceMultiplier);
             currentRelics.Add(new RelicEntry { relicData = item, price = price, isAvailable = true });
         }
@@ -167,18 +160,38 @@ public class ShopManager : MonoBehaviour
     private void RerollCheats()
     {
         currentCheats.Clear();
-        var available = new List<CheatData>(cheatPool);
 
-        int count = Mathf.Min(currentCheatSlots, available.Count);
-        for (int i = 0; i < count; i++)
+        foreach (CheatData item in PickSlots(cheatPool, currentCheatSlots))
         {
-            int idx = UnityEngine.Random.Range(0, available.Count);
-            var item = available[idx];
-            available.RemoveAt(idx);
-
             int price = CalculatePrice(item.basePrice, cheatPriceMultiplier);
             currentCheats.Add(new CheatEntry { cheatData = item, price = price, isAvailable = true });
         }
+    }
+
+    // Picks `count` items for a shop row. Anything not excluded is preferred; once that
+    // set runs dry the whole pool is drawn from again - repeats included - so the row is
+    // always full. Null entries are dropped so one bad reference cannot stall the loop.
+    private static List<T> PickSlots<T>(List<T> pool, int count, Predicate<T> exclude = null) where T : class
+    {
+        var results = new List<T>(count);
+        if (pool == null || count <= 0) return results;
+
+        var eligible = new List<T>(pool);
+        eligible.RemoveAll(item => item == null);
+        if (eligible.Count == 0) return results;
+
+        var fresh = new List<T>(eligible);
+        if (exclude != null) fresh.RemoveAll(exclude);
+
+        for (int i = 0; i < count; i++)
+        {
+            List<T> source = fresh.Count > 0 ? fresh : eligible;
+            int idx = UnityEngine.Random.Range(0, source.Count);
+            results.Add(source[idx]);
+            source.RemoveAt(idx);
+        }
+
+        return results;
     }
 
     private int CalculatePrice(int basePrice, float roundMultiplier)
