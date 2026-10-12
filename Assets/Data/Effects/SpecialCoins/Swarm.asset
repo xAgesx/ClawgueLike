@@ -15,7 +15,7 @@ MonoBehaviour:
   affects: 00000000
   triggersOnContact: 1
   targetFamily: 
-  maxApplications: 3
+  maxApplications: 1
   oncePerTarget: 1
   spendsPartner: 0
   hopInterval: 0
