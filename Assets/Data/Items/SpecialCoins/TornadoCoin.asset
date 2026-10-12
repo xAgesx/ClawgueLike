@@ -17,8 +17,8 @@ MonoBehaviour:
   weight: 1
   magneticAttraction: 1
   itemType: 0
-  icon: {fileID: 21300000, guid: c80dd00e36519964ca7003c53f8b382f, type: 3}
-  basePrice: 10
+  icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
+  basePrice: 50
   description: Tears open a whirlwind that hurls nearby coins around for 5 seconds.
     One use.
   baseValue: 1

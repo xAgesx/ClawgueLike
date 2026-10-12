@@ -51,6 +51,13 @@ public class CoinInstance : MonoBehaviour {
         baseValue = Mathf.Max(1, baseValue + amount);
     }
 
+    // The one path that is allowed to push a coin below one, so the Vampire can drink
+    // an ordinary value-1 coin dry and leave a worthless husk. Deliberately separate
+    // from AddBaseValue, whose floor of one every growth effect relies on.
+    public void DrainBaseValue(int amount) {
+        baseValue = Mathf.Max(0, baseValue - Mathf.Max(0, amount));
+    }
+
     // DoubleDown uses this. Safe to call repeatedly because SpecialCoin only
     // applies an effect to a coin once, not once per frame of contact.
     public void MultiplyBaseValue(float factor) {

@@ -13,14 +13,21 @@ MonoBehaviour:
   m_Name: Vampire
   m_EditorClassIdentifier: Assembly-CSharp::VampireEffect
   affects: 00000000
-  triggersOnContact: 1
+  triggersOnContact: 0
   targetFamily: 
-  maxApplications: 0
+  maxApplications: 2
   oncePerTarget: 1
   spendsPartner: 0
   hopInterval: 0
   hopForce: 4
   spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
   spentTintStrength: 0.6
-  stealAmount: 1
-  minTargetValue: 1
+  searchRadius: 5
+  drainInterval: 2
+  drainPerSip: 1
+  rampSecondsPerSip: 0.8
+  minTargetValue: 0
+  pauseBetweenTargets: 3
+  maxTargets: 5
+  beamWidth: 0.04
+  beamColor: {r: 0.8, g: 0.05, b: 0.15, a: 1}
