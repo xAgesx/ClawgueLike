@@ -15,7 +15,7 @@ MonoBehaviour:
   affects: 00000000
   triggersOnContact: 0
   targetFamily: 
-  maxApplications: 0
+  maxApplications: 1
   oncePerTarget: 1
   spendsPartner: 0
   hopInterval: 0
@@ -24,7 +24,7 @@ MonoBehaviour:
   spentTintStrength: 0.6
   radius: 1.2
   duration: 5
-  lift: 8
+  lift: 10
   swirl: 6
   inward: 25
-  maxSpeed: 3
+  maxSpeed: 4
