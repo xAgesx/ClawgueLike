@@ -36,6 +36,10 @@ public class GameManager : MonoBehaviour {
 
     public IReadOnlyList<InventoryItem> Inventory => inventory;
 
+    [Header("Debug")]
+    [Tooltip("Tick this to drop every item in the inventory into the machine. It clears itself the moment it fires, so it can be retriggered for the next round.")]
+    public bool TestSpawn;
+
     private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(gameObject);
@@ -48,6 +52,43 @@ public class GameManager : MonoBehaviour {
 
     private void Start() {
         NotifyAllUI();
+    }
+
+    private void Update() {
+        if (!TestSpawn) return;
+
+        TestSpawn = false;
+        SpawnInventory();
+    }
+
+    // Debug only: drops one coin per unit in the inventory in at a random spawn point,
+    // skipping the per-turn cap and the shop. Nothing is spent, so the same inventory
+    // can be re-spawned to try a build again.
+    public void SpawnInventory() {
+        ItemSpawner spawner = ItemSpawner.Instance;
+        if (spawner == null) {
+            Debug.LogWarning("[GameManager] No ItemSpawner in the scene - cannot spawn the inventory.");
+            return;
+        }
+
+        if (inventory.Count == 0) {
+            Debug.Log("[GameManager] Inventory is empty, nothing to spawn.");
+            return;
+        }
+
+        int spawned = 0;
+
+        foreach (InventoryItem item in inventory) {
+            CoinData coin = item.itemData as CoinData;
+            if (coin == null) continue;
+
+            for (int i = 0; i < item.quantity; i++) {
+                spawner.SpawnAtSpawnPoint(coin, coin.baseValue);
+                spawned++;
+            }
+        }
+
+        Debug.Log($"[GameManager] Debug spawned {spawned} inventory coin(s).");
     }
 
     public void ResetGame() {

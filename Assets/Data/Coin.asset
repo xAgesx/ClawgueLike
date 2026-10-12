@@ -21,4 +21,5 @@ MonoBehaviour:
   basePrice: 0
   description: This a normal coin
   baseValue: 1
+  family: 
   effects: []

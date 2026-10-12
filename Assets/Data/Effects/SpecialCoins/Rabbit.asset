@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Rabbit
   m_EditorClassIdentifier: Assembly-CSharp::RabbitEffect
   affects: 00000000
+  triggersOnContact: 1
   targetFamily: rabbit
   maxApplications: 1
   oncePerTarget: 0
   spendsPartner: 1
   hopInterval: 2
   hopForce: 2
-  spentTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
+  spentTintStrength: 0.6
   offspring: {fileID: 11400000, guid: a88b174b3e7842e19e15a55ab5bf4bb9, type: 2}
   offspringFraction: 0.5
   minOffspringValue: 1

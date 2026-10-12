@@ -4834,10 +4834,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
   coinPool:
-  - {fileID: 11400000, guid: d0b91a8cf2d4754439bd8976dd78163b, type: 2}
-  - {fileID: 11400000, guid: bcc8b8e97a7ab784fb04730b39a35176, type: 2}
   - {fileID: 11400000, guid: 64e9af85d28a21e40b1d84ccfc3f92a1, type: 2}
   - {fileID: 11400000, guid: a88b174b3e7842e19e15a55ab5bf4bb9, type: 2}
+  - {fileID: 11400000, guid: 543cdc9bc88747f08ac2326f73838c8b, type: 2}
+  - {fileID: 11400000, guid: 142e5729ddee47c0a0bb3e0612b09498, type: 2}
+  - {fileID: 11400000, guid: 15b6dc044f634a438e526cf96d947096, type: 2}
+  - {fileID: 11400000, guid: 3e969121fdc3426bbebee51e0cf9afe7, type: 2}
+  - {fileID: 11400000, guid: fd9190fbef3a4c458f72575bfb76bf97, type: 2}
+  - {fileID: 11400000, guid: b02eda7b529349649e7c52d543562be9, type: 2}
+  - {fileID: 11400000, guid: 15dcaefa02f1469bb9202e4634dab256, type: 2}
+  - {fileID: 11400000, guid: 28d6d470c76d4dc7915aff4742b62e97, type: 2}
   relicPool:
   - {fileID: 11400000, guid: 051dc4c366a951947a7d7b3a6a561bc2, type: 2}
   - {fileID: 11400000, guid: fff6207955bc2e74687a70c8124cb7f5, type: 2}
@@ -56044,7 +56050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemSpawner
   normalCoinPool:
   - {fileID: 11400000, guid: 3baa411a47ce5ff40bcc6731f5aff9d7, type: 2}
-  normalCoinsPerRound: 50
+  normalCoinsPerRound: 500
   inventoryCoinsPerTurn: 4
   spawnPoints:
   - {fileID: 8039845}
@@ -72511,7 +72517,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4612031ffabc2174ca492b483f415af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  startingCoins: 50
+  startingCoins: 500
   startingFragments: 0
   maxPullsPerTurn: 2
   turnsPerRound: 3
@@ -72520,6 +72526,7 @@ MonoBehaviour:
   shopOpenDelay: 2
   refillDelay: 1
   inventory: []
+  TestSpawn: 0
 --- !u!114 &1619081642
 MonoBehaviour:
   m_ObjectHideFlags: 0

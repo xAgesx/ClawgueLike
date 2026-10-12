@@ -26,10 +26,29 @@ public class CoinInstance : MonoBehaviour {
         multiplier = 1f;
         appliedEffects.Clear();
         ResetTint();
+        ClearMotion();
+    }
+
+    // A reused coin still carries the velocity it had when it was collected, so it
+    // would shoot straight back out of the pool. Coins without Poolable have nothing
+    // else to wipe it, so the spawn path does it here.
+    private void ClearMotion() {
+        Rigidbody body = GetComponent<Rigidbody>();
+        if (body == null) return;
+
+        body.linearVelocity = Vector3.zero;
+        body.angularVelocity = Vector3.zero;
+        body.WakeUp();
     }
 
     public void SetBaseValue(int value) {
         baseValue = Mathf.Max(1, value);
+    }
+
+    // Used by effects that grow a coin in place instead of replacing its value
+    // (a snowball packing on, a crystal ticking up).
+    public void AddBaseValue(int amount) {
+        baseValue = Mathf.Max(1, baseValue + amount);
     }
 
     // DoubleDown uses this. Safe to call repeatedly because SpecialCoin only
@@ -54,7 +73,11 @@ public class CoinInstance : MonoBehaviour {
         if (effect != null) appliedEffects.Add(effect);
     }
 
-    public void SetTint(Color color) {
+    // Blended over the coin's own colour rather than replacing it, so a spent coin
+    // still reads as the coin it is: strength 1 is DoubleDown stamping it red, the
+    // spent wash uses less than that. originalColor is captured before anything tints,
+    // so repeated tints all blend from the coin's real colour, not from each other.
+    public void SetTint(Color color, float strength = 1f) {
         Renderer rend = GetRenderer();
         if (rend == null) return;
 
@@ -63,7 +86,7 @@ public class CoinInstance : MonoBehaviour {
             hasOriginalColor = true;
         }
 
-        rend.material.color = color;
+        rend.material.color = Color.Lerp(originalColor, color, Mathf.Clamp01(strength));
     }
 
     public void ResetTint() {

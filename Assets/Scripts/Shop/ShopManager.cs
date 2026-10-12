@@ -44,7 +44,6 @@ public class ShopManager : MonoBehaviour
     private List<RelicEntry> currentRelics = new List<RelicEntry>();
     private List<CheatEntry> currentCheats = new List<CheatEntry>();
 
-    private List<CoinData> purchasedCoinsThisSession = new List<CoinData>();
     private int rerollsThisSession = 0;
 
     public event Action OnShopRefreshed;
@@ -108,7 +107,6 @@ public class ShopManager : MonoBehaviour
         currentRound = round;
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
-        purchasedCoinsThisSession.Clear();
 
         RerollAll();
     }
@@ -142,11 +140,9 @@ public class ShopManager : MonoBehaviour
     {
         currentCoins.Clear();
 
-        // Prefer coins not bought this round, but top up from the whole pool rather than
-        // leaving a row short: UpdateShopCoins renders any slot with no entry as
-        // unavailable, which reads to the player as "this slot is locked".
-        var items = PickSlots(coinPool, currentCoinSlots,
-            item => purchasedCoinsThisSession.Contains(item));
+        // Whatever the player has already bought is not held back - a coin that was
+        // picked up last turn can turn up again and be bought again.
+        var items = PickSlots(coinPool, currentCoinSlots);
 
         foreach (CoinData item in items)
         {
@@ -177,27 +173,22 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // Picks `count` items for a shop row. Anything not excluded is preferred; once that
-    // set runs dry the whole pool is drawn from again - repeats included - so the row is
-    // always full. Null entries are dropped so one bad reference cannot stall the loop.
-    private static List<T> PickSlots<T>(List<T> pool, int count, Predicate<T> exclude = null) where T : class
+    // Picks `count` distinct items for a shop row. Null entries are dropped so one bad
+    // reference cannot stall the loop, and with the pool smaller than the row the row
+    // just comes out short.
+    private static List<T> PickSlots<T>(List<T> pool, int count) where T : class
     {
         var results = new List<T>(count);
         if (pool == null || count <= 0) return results;
 
         var eligible = new List<T>(pool);
         eligible.RemoveAll(item => item == null);
-        if (eligible.Count == 0) return results;
 
-        var fresh = new List<T>(eligible);
-        if (exclude != null) fresh.RemoveAll(exclude);
-
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count && eligible.Count > 0; i++)
         {
-            List<T> source = fresh.Count > 0 ? fresh : eligible;
-            int idx = UnityEngine.Random.Range(0, source.Count);
-            results.Add(source[idx]);
-            source.RemoveAt(idx);
+            int idx = UnityEngine.Random.Range(0, eligible.Count);
+            results.Add(eligible[idx]);
+            eligible.RemoveAt(idx);
         }
 
         return results;
@@ -232,7 +223,6 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.SpendCoins(entry.price))
         {
             entry.isAvailable = false;
-            purchasedCoinsThisSession.Add(entry.itemData);
             GameManager.Instance.AddItemToInventory(entry.itemData);
             UpdateShopUI();
             OnItemPurchased?.Invoke();

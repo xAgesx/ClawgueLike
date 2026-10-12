@@ -21,6 +21,9 @@ public class ItemSpawner : MonoBehaviour {
     [Header("Debug")]
     public int spawnedCount;
 
+    // True while any spawn routine is still trickling coins into the machine.
+    public bool IsSpawning => isSpawning;
+
     private bool isSpawning;
     private Dictionary<ItemData, ObjectPool> pools = new Dictionary<ItemData, ObjectPool>();
     private List<GameObject> activeItems = new List<GameObject>();
@@ -257,6 +260,15 @@ public class ItemSpawner : MonoBehaviour {
             if (coin != null) coin.SetBaseValue(baseValue);
         }
         return item;
+    }
+
+    /// <summary>
+    /// Drops a coin in at a random spawn point without touching the inventory or the
+    /// per-turn cap. Used by the debug spawn-inventory trigger.
+    /// </summary>
+    public GameObject SpawnAtSpawnPoint(CoinData itemData, int baseValue) {
+        if (itemData == null) return null;
+        return SpawnCoinAt(itemData, CalculateSpawnPosition(), baseValue);
     }
 
     // Guarantees the spawned object points back at the asset it came from and that

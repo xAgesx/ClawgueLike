@@ -7,6 +7,9 @@ using UnityEngine;
 public abstract class CoinEffect : ScriptableObject {
     [SerializeField] private ItemType[] affects = { ItemType.Coin };
 
+    [Tooltip("Off for effects that only do something at a turn boundary (a crystal growing) and must never fire from a physical touch.")]
+    [SerializeField] private bool triggersOnContact = true;
+
     [Tooltip("If set, only coins whose CoinData.family matches this exactly.")]
     [SerializeField] private string targetFamily = "";
 
@@ -29,13 +32,18 @@ public abstract class CoinEffect : ScriptableObject {
     [Tooltip("Tint the carrying coin takes once it has used up all of this effect's applications.")]
     [SerializeField] private Color spentTint = Color.gray;
 
+    [Tooltip("How far the spent tint is blended over the coin's own colour. 1 repaints it, lower values leave it a faded version of itself so it still reads at a glance without turning into a grey blob.")]
+    [SerializeField, Range(0f, 1f)] private float spentTintStrength = 0.6f;
+
     public int MaxApplications => maxApplications;
     public bool OncePerTarget => oncePerTarget;
     public bool SpendsPartner => spendsPartner;
+    public bool TriggersOnContact => triggersOnContact;
     public string TargetFamily => targetFamily;
     public float HopInterval => hopInterval;
     public float HopForce => hopForce;
     public Color SpentTint => spentTint;
+    public float SpentTintStrength => spentTintStrength;
 
     public bool Affects(CoinInstance target) {
         if (target == null || target.Data == null) return false;
@@ -51,4 +59,14 @@ public abstract class CoinEffect : ScriptableObject {
     }
 
     public abstract void Apply(CoinInstance target, SpecialCoin source);
+
+    // Fired once per turn for every special coin still sitting in the machine, so
+    // effects that do nothing on contact (a tornado whipping up, a crystal ticking
+    // over) override this instead of Apply. No-op by default.
+    public virtual void OnTurnStart(CoinInstance coin, SpecialCoin source) { }
+
+    // Fired when the carrying coin slams into the world itself - a floor or a wall -
+    // rather than into another coin. Apply only ever runs for coin targets, so a
+    // spring that cares about landing has nowhere else to hook in. No-op by default.
+    public virtual void OnImpact(CoinInstance coin, SpecialCoin source, Collision collision) { }
 }

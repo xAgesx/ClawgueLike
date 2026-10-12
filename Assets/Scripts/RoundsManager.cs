@@ -46,9 +46,21 @@ public class RoundsManager : MonoBehaviour {
 
     private void OnShopClosed() {
         if (isTransitioning) return;
+        StartCoroutine(TurnStartSequence());
+    }
+
+    // Closing the shop is the moment a turn actually begins. Inventory coins trickle in
+    // over several frames, so the turn-start effects wait for the machine to settle -
+    // a tornado has to be able to reach this turn's coins, not just last turn's.
+    private System.Collections.IEnumerator TurnStartSequence() {
         if (itemSpawner != null) {
             itemSpawner.SpawnInventoryCoins();
+            yield return null; // let SpawnInventoryWhenFree arm its flag first
+            while (itemSpawner.IsSpawning) yield return null;
         }
+
+        yield return new WaitForSeconds(0.25f);
+        SpecialCoin.DispatchTurnStart();
     }
 
     public void OnPullUsed() {

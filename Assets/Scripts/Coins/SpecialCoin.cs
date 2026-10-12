@@ -18,6 +18,14 @@ public class SpecialCoin : MonoBehaviour {
     // waits a full interval before its first hop instead of jumping on spawn.
     private float hopTimer = -1f;
 
+    // Where each turn-based effect last saw this coin. A crystal compares this against
+    // its current spot to decide whether anything disturbed it during the turn.
+    private readonly Dictionary<CoinEffect, Vector3> lastTurnPositions = new Dictionary<CoinEffect, Vector3>();
+
+    // Drift under this is settling, not a touch. Coins are ~15cm across, so 2cm is
+    // small enough that a real nudge always counts but a pile breathing does not.
+    private const float DisturbanceThreshold = 0.02f;
+
     public CoinInstance Self {
         get {
             if (self == null) self = GetComponent<CoinInstance>();
@@ -39,6 +47,7 @@ public class SpecialCoin : MonoBehaviour {
     private void OnEnable() {
         // Pooled coins come back to life, so their effects have to come back too.
         applications.Clear();
+        lastTurnPositions.Clear();
         hopTimer = -1f;
     }
 
@@ -67,6 +76,30 @@ public class SpecialCoin : MonoBehaviour {
 
     private void OnCollisionEnter(Collision collision) {
         if (collision.collider != null) TryApplyTo(collision.collider);
+        TryImpact(collision);
+    }
+
+    // A landing rather than a coin-on-coin bump: the thing we hit carries no
+    // CoinInstance of its own and the surface faces upward. Apply can only ever fire
+    // for coin targets, so effects about hitting the floor hook in here instead.
+    private void TryImpact(Collision collision) {
+        if (pickup == null || collision.collider == null) return;
+
+        CoinData data = pickup.ItemData as CoinData;
+        if (data == null || !data.IsSpecial) return;
+
+        // Landing on the pile is not landing on the floor.
+        if (collision.collider.GetComponentInParent<CoinInstance>() != null) return;
+
+        if (collision.contactCount == 0) return;
+        if (collision.GetContact(0).normal.y < 0.5f) return;
+
+        foreach (CoinEffect effect in data.effects) {
+            if (effect == null) continue;
+            if (IsExhausted(effect)) continue;
+
+            effect.OnImpact(Self, this, collision);
+        }
     }
 
     private void TryApplyTo(Collider other) {
@@ -82,6 +115,9 @@ public class SpecialCoin : MonoBehaviour {
         if (target == null || target == Self) return;
 
         foreach (CoinEffect effect in data.effects) {
+            // Turn-only effects (a crystal) must never be driven by a bump.
+            if (!effect.TriggersOnContact) continue;
+
             if (!effect.Affects(target)) continue;
 
             // One application per coin per effect. Without this a DoubleDown that
@@ -101,12 +137,53 @@ public class SpecialCoin : MonoBehaviour {
 
             // A coin that has used up an effect goes grey so it reads as "spent"
             // at a glance rather than looking like it is still waiting to fire.
-            if (IsExhausted(effect)) Self.SetTint(effect.SpentTint);
+            if (IsExhausted(effect)) Self.SetTint(effect.SpentTint, effect.SpentTintStrength);
 
             // Both rabbits report the same contact, so the second one has to see the
             // first one's spend - otherwise one litter comes out as two babies.
             if (effect.SpendsPartner) SpendPartner(target, effect);
         }
+    }
+
+    // Called once by RoundsManager when a turn's coins have landed. Every special coin
+    // still in the machine gets its turn-start effects fired.
+    public static void DispatchTurnStart() {
+        foreach (SpecialCoin coin in FindObjectsByType<SpecialCoin>(FindObjectsSortMode.None)) {
+            coin.TurnStart();
+        }
+    }
+
+    private void TurnStart() {
+        if (pickup == null) return;
+
+        CoinData data = pickup.ItemData as CoinData;
+        if (data == null || !data.IsSpecial) return;
+
+        foreach (CoinEffect effect in data.effects) {
+            if (effect == null) continue;
+            if (IsExhausted(effect)) continue;
+
+            effect.OnTurnStart(Self, this);
+            applications[effect] = ApplicationsFor(effect) + 1;
+
+            if (IsExhausted(effect)) Self.SetTint(effect.SpentTint, effect.SpentTintStrength);
+        }
+    }
+
+    // Turn-based effects ask this instead of watching the physics themselves. Records
+    // where the coin is and reports whether it drifted since the last turn boundary.
+    // The first call has nothing to compare against, so it reports "moved" - a crystal
+    // bought this turn gets no credit for the turn it arrived in.
+    public bool HasMovedSinceLastTurn(CoinEffect effect) {
+        Vector3 now = transform.position;
+
+        if (!lastTurnPositions.TryGetValue(effect, out Vector3 before)) {
+            lastTurnPositions[effect] = now;
+            return true;
+        }
+
+        lastTurnPositions[effect] = now;
+        return (now - before).sqrMagnitude > DisturbanceThreshold * DisturbanceThreshold;
     }
 
     private static bool IsExhaustedFor(CoinInstance coin, CoinEffect effect) {
@@ -125,7 +202,7 @@ public class SpecialCoin : MonoBehaviour {
         if (special == null) return;
 
         special.applications[effect] = effect.MaxApplications;
-        special.Self.SetTint(effect.SpentTint);
+        special.Self.SetTint(effect.SpentTint, effect.SpentTintStrength);
     }
 
     // The first effect on this coin that still leaps and has not run out yet.
