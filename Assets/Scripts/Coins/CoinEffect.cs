@@ -7,7 +7,7 @@ using UnityEngine;
 public abstract class CoinEffect : ScriptableObject {
     [SerializeField] private ItemType[] affects = { ItemType.Coin };
 
-    [Tooltip("Off for effects that only do something at a turn boundary (a crystal growing) and must never fire from a physical touch.")]
+    [Tooltip("Off for effects that only do something at a turn boundary (a sleeping coin growing) and must never fire from a physical touch.")]
     [SerializeField] private bool triggersOnContact = true;
 
     [Tooltip("If set, only coins whose CoinData.family matches this exactly.")]
@@ -61,8 +61,8 @@ public abstract class CoinEffect : ScriptableObject {
     public abstract void Apply(CoinInstance target, SpecialCoin source);
 
     // Fired once per turn for every special coin still sitting in the machine, so
-    // effects that do nothing on contact (a tornado whipping up, a crystal ticking
-    // over) override this instead of Apply. No-op by default.
+    // effects that do nothing on contact (a tornado whipping up, a sleeping coin
+    // ticking over) override this instead of Apply. No-op by default.
     public virtual void OnTurnStart(CoinInstance coin, SpecialCoin source) { }
 
     // Fired when the carrying coin slams into the world itself - a floor or a wall -

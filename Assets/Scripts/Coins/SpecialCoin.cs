@@ -32,8 +32,8 @@ public class SpecialCoin : MonoBehaviour {
     // waits a full interval before its first hop instead of jumping on spawn.
     private float hopTimer = -1f;
 
-    // Where each turn-based effect last saw this coin. A crystal compares this against
-    // its current spot to decide whether anything disturbed it during the turn.
+    // Where each turn-based effect last saw this coin. An effect compares this against
+    // its current spot to decide whether the coin was disturbed during the turn.
     private readonly Dictionary<CoinEffect, Vector3> lastTurnPositions = new Dictionary<CoinEffect, Vector3>();
 
     // Drift under this is settling, not a touch. Coins are ~15cm across, so 2cm is
@@ -170,7 +170,7 @@ public class SpecialCoin : MonoBehaviour {
 
     private void ApplyTo(CoinInstance target, CoinData data) {
         foreach (CoinEffect effect in data.effects) {
-            // Turn-only effects (a crystal) must never be driven by a bump.
+            // Turn-only effects (a sleeping coin) must never be driven by a bump.
             if (!effect.TriggersOnContact) continue;
 
             if (!effect.Affects(target)) continue;
@@ -209,7 +209,6 @@ public class SpecialCoin : MonoBehaviour {
     }
 
     private void TurnStart() {
-        if (spawnLockTimer > 0f) return;
         if (pickup == null) return;
 
         CoinData data = pickup.ItemData as CoinData;
@@ -228,7 +227,7 @@ public class SpecialCoin : MonoBehaviour {
 
     // Turn-based effects ask this instead of watching the physics themselves. Records
     // where the coin is and reports whether it drifted since the last turn boundary.
-    // The first call has nothing to compare against, so it reports "moved" - a crystal
+    // The first call has nothing to compare against, so it reports "moved" - a coin
     // bought this turn gets no credit for the turn it arrived in.
     public bool HasMovedSinceLastTurn(CoinEffect effect) {
         Vector3 now = transform.position;

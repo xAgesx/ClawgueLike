@@ -22,5 +22,3 @@ MonoBehaviour:
   hopForce: 4
   spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
   spentTintStrength: 0.6
-  fuseRadius: 0.28
-  coinsRequired: 2

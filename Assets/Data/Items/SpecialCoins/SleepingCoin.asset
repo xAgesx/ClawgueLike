@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16e8cd743ca544028b123797098b7dac, type: 3}
-  m_Name: CrystalCoin
+  m_Name: SleepingCoin
   m_EditorClassIdentifier: Assembly-CSharp::CoinData
-  itemName: CrystalCoin
+  itemName: SleepingCoin
   prefab: {fileID: 7880067690139979386, guid: 876c33b871fa49089dce664626f8b020, type: 3}
   weight: 1
   magneticAttraction: 1
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 7
-  description: Gains 1 value for every turn it survives completely undisturbed, up to 5.
+  description: Gains 5 value on every turn that passes while it sits in the machine.
   baseValue: 1
   family: 
   effects: 

@@ -19,8 +19,8 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 8
-  description: Gains 1 value for every new coin it rolls into. grows every 3 unique
-    coins it touches.
+  description: Gains 1 value for every new coin it rolls into, and swells 10% bigger
+    for every 3 new coins (up to triple size).
   baseValue: 1
   family: 
   effects:

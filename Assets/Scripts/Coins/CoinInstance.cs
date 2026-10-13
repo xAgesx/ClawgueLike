@@ -61,7 +61,7 @@ public class CoinInstance : MonoBehaviour {
     }
 
     // Used by effects that grow a coin in place instead of replacing its value
-    // (a snowball packing on, a crystal ticking up).
+    // (a snowball packing on, a sleeping coin ticking up).
     public void AddBaseValue(int amount) {
         baseValue = Mathf.Max(1, baseValue + amount);
     }

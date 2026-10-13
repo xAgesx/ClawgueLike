@@ -19,7 +19,7 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 2
-  description: fdgdfg
+  description: Doubles the value of the first two coins it touches.
   baseValue: 1
   effects:
   - {fileID: 11400000, guid: 7ab5a7f5cd829f145863adfbf4e8636e, type: 2}

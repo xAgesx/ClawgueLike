@@ -19,8 +19,8 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 3
-  description: Breeds when it meets another rabbit, leaving behind a MiniRabbitCoin
-    worth half its own value. Each rabbit breeds only once.
+  description: Hops about until it meets another rabbit, then leaves behind a
+    MiniRabbitCoin worth half its value. Each rabbit breeds only once.
   baseValue: 2
   family: rabbit
   effects:

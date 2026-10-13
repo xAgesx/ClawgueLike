@@ -19,8 +19,8 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 5
-  description: Kicks off the floor every time it lands and shoves the coins around
-    it.
+  description: Bounces off whatever it lands on and shoves the coins around it, hopping
+    about the machine on its own.
   baseValue: 2
   family: 
   effects:

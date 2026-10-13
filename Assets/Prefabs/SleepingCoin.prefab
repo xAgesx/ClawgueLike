@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: -8641450092584723722}
   - component: {fileID: 6118842017091648240}
   m_Layer: 3
-  m_Name: CrystalCoin
+  m_Name: SleepingCoin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
