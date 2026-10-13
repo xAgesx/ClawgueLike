@@ -8,16 +8,30 @@ public class CoinInstance : MonoBehaviour {
     private CoinData data;
     private int baseValue = 1;
     private float multiplier = 1f;
+    private float sizeMultiplier = 1f;
+    private float displayedSize = 1f;
     private readonly HashSet<CoinEffect> appliedEffects = new HashSet<CoinEffect>();
 
     private Renderer tintRenderer;
     private Color originalColor;
     private bool hasOriginalColor;
 
+    private Vector3 baseScale;
+    private bool hasBaseScale;
+
+    [Tooltip("How fast the coin swells toward its target size, in size-multiples per second.")]
+    [SerializeField] private float sizeGrowthRate = 0.4f;
+
     public CoinData Data => data;
     public int BaseValue => baseValue;
     public float Multiplier => multiplier;
+    public float SizeMultiplier => sizeMultiplier;
     public int TotalValue => Mathf.Max(0, Mathf.RoundToInt(baseValue * multiplier));
+
+    private void Awake() {
+        baseScale = transform.localScale;
+        hasBaseScale = true;
+    }
 
     // Called by ItemSpawner the instant this coin leaves the pool.
     public void Initialize(CoinData coinData) {
@@ -26,6 +40,7 @@ public class CoinInstance : MonoBehaviour {
         multiplier = 1f;
         appliedEffects.Clear();
         ResetTint();
+        ResetSize();
         ClearMotion();
     }
 
@@ -58,7 +73,7 @@ public class CoinInstance : MonoBehaviour {
         baseValue = Mathf.Max(0, baseValue - Mathf.Max(0, amount));
     }
 
-    // DoubleDown uses this. Safe to call repeatedly because SpecialCoin only
+    // Infection uses this. Safe to call repeatedly because SpecialCoin only
     // applies an effect to a coin once, not once per frame of contact.
     public void MultiplyBaseValue(float factor) {
         baseValue = Mathf.Max(1, Mathf.RoundToInt(baseValue * factor));
@@ -72,6 +87,28 @@ public class CoinInstance : MonoBehaviour {
         multiplier *= factor;
     }
 
+    // Sets the size the coin is growing toward. The actual swell happens gradually in
+    // Update so a snowball visibly fattens up over a beat instead of popping instantly.
+    // Scaling the transform scales its collider with it, so a fattened snowball really
+    // is a bigger obstacle. baseScale is the prefab's own size, captured in Awake
+    // before anything ever inflates it.
+    public void SetSizeMultiplier(float value) {
+        sizeMultiplier = Mathf.Max(0.01f, value);
+    }
+
+    public void ResetSize() {
+        sizeMultiplier = 1f;
+        displayedSize = 1f;
+        if (hasBaseScale) transform.localScale = baseScale;
+    }
+
+    private void Update() {
+        if (!hasBaseScale || Mathf.Approximately(displayedSize, sizeMultiplier)) return;
+
+        displayedSize = Mathf.MoveTowards(displayedSize, sizeMultiplier, sizeGrowthRate * Time.deltaTime);
+        transform.localScale = baseScale * displayedSize;
+    }
+
     public bool HasApplied(CoinEffect effect) {
         return effect != null && appliedEffects.Contains(effect);
     }
@@ -81,7 +118,7 @@ public class CoinInstance : MonoBehaviour {
     }
 
     // Blended over the coin's own colour rather than replacing it, so a spent coin
-    // still reads as the coin it is: strength 1 is DoubleDown stamping it red, the
+    // still reads as the coin it is: strength 1 is Infection stamping it red, the
     // spent wash uses less than that. originalColor is captured before anything tints,
     // so repeated tints all blend from the coin's real colour, not from each other.
     public void SetTint(Color color, float strength = 1f) {
@@ -113,5 +150,6 @@ public class CoinInstance : MonoBehaviour {
         multiplier = 1f;
         appliedEffects.Clear();
         ResetTint();
+        ResetSize();
     }
 }

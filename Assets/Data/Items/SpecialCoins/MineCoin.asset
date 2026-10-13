@@ -17,10 +17,11 @@ MonoBehaviour:
   weight: 1
   magneticAttraction: 1
   itemType: 0
-  icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
+  icon: {fileID: 21300000, guid: c80dd00e36519964ca7003c53f8b382f, type: 3}
   basePrice: 9
-  description: The first coin to bump it sets off a blast that hurls everything nearby. Detonates once.
+  description: The first coin to bump it sets off a blast that hurls everything nearby.
+    Detonates once.
   baseValue: 1
   family: 
-  effects: 
+  effects:
   - {fileID: 11400000, guid: f9252d9d25154131a2d575ad1bd6b8ab, type: 2}

@@ -22,6 +22,6 @@ MonoBehaviour:
   hopForce: 4
   spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
   spentTintStrength: 0.6
-  blastRadius: 1.1
-  blastForce: 3.5
-  upwardBias: 0.6
+  blastRadius: 1.5
+  blastForce: 7
+  upwardBias: 1.2

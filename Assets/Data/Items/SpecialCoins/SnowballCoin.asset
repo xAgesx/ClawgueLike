@@ -19,8 +19,9 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
   basePrice: 8
-  description: Gains 1 value for every new coin it rolls into, up to 6.
+  description: Gains 1 value for every new coin it rolls into. grows every 3 unique
+    coins it touches.
   baseValue: 1
   family: 
-  effects: 
+  effects:
   - {fileID: 11400000, guid: daa8fef2705f4ed8b340f0fb97ce8499, type: 2}

@@ -18,7 +18,7 @@ MonoBehaviour:
   maxApplications: 0
   oncePerTarget: 1
   spendsPartner: 0
-  hopInterval: 1.5
+  hopInterval: 5
   hopForce: 4
   spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
   spentTintStrength: 0.6

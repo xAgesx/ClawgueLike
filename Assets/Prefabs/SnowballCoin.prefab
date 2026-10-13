@@ -71,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f853b020c74b4eada979c51b927718d0, type: 2}
+  - {fileID: 2100000, guid: 40d7a2050617ae04faf0e7ea6a5bf201, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -144,7 +144,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 1
-
 --- !u!114 &4360995424809601569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170,6 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b92a5ca65a6debd4db58a2fc68341f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpecialCoin
+  spawnAbilityDelay: 1
 --- !u!114 &6118842017091648240
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,3 +182,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ad04c91f10d45ac9f06588b626a6f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoinInstance
+  sizeGrowthRate: 0.1

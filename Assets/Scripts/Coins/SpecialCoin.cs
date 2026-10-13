@@ -6,6 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(ItemPickup))]
 [RequireComponent(typeof(CoinInstance))]
 public class SpecialCoin : MonoBehaviour {
+    // Abilities are held back for this long after the coin spawns, so a fresh drop
+    // cannot bite the pile it lands in before it has even settled.
+    [SerializeField] private float spawnAbilityDelay = 1f;
+
     private ItemPickup pickup;
     private CoinInstance self;
     private Rigidbody body;
@@ -13,6 +17,16 @@ public class SpecialCoin : MonoBehaviour {
     // How many times THIS coin has fired each of its effects. Lives here because
     // the effect asset is shared by every copy and must stay stateless.
     private readonly Dictionary<CoinEffect, int> applications = new Dictionary<CoinEffect, int>();
+
+    // Seconds left before this coin's abilities may fire. Reset to the spawn delay
+    // every time the coin leaves the pool, then ticked down in Update.
+    private float spawnLockTimer;
+
+    // Coins this one touched while it was still arming. A coin that falls straight
+    // onto the pile makes its one meaningful contact during the delay, and because
+    // it stays in contact no fresh event ever arrives - so those touches are held
+    // here and replayed the moment the coin wakes up instead of being discarded.
+    private readonly List<CoinInstance> pendingTargets = new List<CoinInstance>();
 
     // Seconds left until the next leap. Starts negative so a freshly pooled coin
     // waits a full interval before its first hop instead of jumping on spawn.
@@ -49,9 +63,18 @@ public class SpecialCoin : MonoBehaviour {
         applications.Clear();
         lastTurnPositions.Clear();
         hopTimer = -1f;
+        spawnLockTimer = spawnAbilityDelay;
+        pendingTargets.Clear();
     }
 
     private void Update() {
+        // Abilities stay dormant for a moment after the coin appears.
+        if (spawnLockTimer > 0f) {
+            spawnLockTimer -= Time.deltaTime;
+            if (spawnLockTimer <= 0f) FlushPendingTargets();
+            return;
+        }
+
         CoinEffect driver = FindHopDriver();
         if (driver == null) {
             hopTimer = -1f;
@@ -83,6 +106,7 @@ public class SpecialCoin : MonoBehaviour {
     // CoinInstance of its own and the surface faces upward. Apply can only ever fire
     // for coin targets, so effects about hitting the floor hook in here instead.
     private void TryImpact(Collision collision) {
+        if (spawnLockTimer > 0f) return;
         if (pickup == null || collision.collider == null) return;
 
         CoinData data = pickup.ItemData as CoinData;
@@ -114,13 +138,44 @@ public class SpecialCoin : MonoBehaviour {
         CoinInstance target = other.GetComponentInParent<CoinInstance>();
         if (target == null || target == Self) return;
 
+        // Still arming: hold the touch and act on it the instant the coin wakes up.
+        if (spawnLockTimer > 0f) {
+            if (!pendingTargets.Contains(target)) pendingTargets.Add(target);
+            return;
+        }
+
+        ApplyTo(target, data);
+    }
+
+    // Anything this coin bumped into while it was still arming gets run through here
+    // once the spawn delay is over, so the touch is delayed rather than lost.
+    private void FlushPendingTargets() {
+        if (pickup == null) {
+            pendingTargets.Clear();
+            return;
+        }
+
+        CoinData data = pickup.ItemData as CoinData;
+        if (data == null || !data.IsSpecial) {
+            pendingTargets.Clear();
+            return;
+        }
+
+        for (int i = 0; i < pendingTargets.Count; i++) {
+            CoinInstance target = pendingTargets[i];
+            if (target != null) ApplyTo(target, data);
+        }
+        pendingTargets.Clear();
+    }
+
+    private void ApplyTo(CoinInstance target, CoinData data) {
         foreach (CoinEffect effect in data.effects) {
             // Turn-only effects (a crystal) must never be driven by a bump.
             if (!effect.TriggersOnContact) continue;
 
             if (!effect.Affects(target)) continue;
 
-            // One application per coin per effect. Without this a DoubleDown that
+            // One application per coin per effect. Without this an Infection that
             // keeps resting against the same coin would compound every frame.
             if (effect.OncePerTarget && target.HasApplied(effect)) continue;
 
@@ -154,6 +209,7 @@ public class SpecialCoin : MonoBehaviour {
     }
 
     private void TurnStart() {
+        if (spawnLockTimer > 0f) return;
         if (pickup == null) return;
 
         CoinData data = pickup.ItemData as CoinData;
@@ -222,6 +278,8 @@ public class SpecialCoin : MonoBehaviour {
     }
 
     private void TryHop(CoinEffect driver) {
+        if (spawnLockTimer > 0f) return;
+
         Rigidbody rb = Body;
         if (rb == null || rb.isKinematic) return;
 
@@ -270,7 +328,9 @@ public class SpecialCoin : MonoBehaviour {
         return effect.MaxApplications > 0 && ApplicationsFor(effect) >= effect.MaxApplications;
     }
 
-    private int ApplicationsFor(CoinEffect effect) {
+    // Public so effects that need to know how many times they have landed (a snowball
+    // that only grows every few coins) can read their own running total.
+    public int ApplicationsFor(CoinEffect effect) {
         return applications.TryGetValue(effect, out int count) ? count : 0;
     }
 }

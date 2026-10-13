@@ -15,7 +15,7 @@ MonoBehaviour:
   affects: 00000000
   triggersOnContact: 1
   targetFamily: 
-  maxApplications: 6
+  maxApplications: 0
   oncePerTarget: 1
   spendsPartner: 0
   hopInterval: 0
@@ -23,3 +23,6 @@ MonoBehaviour:
   spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
   spentTintStrength: 0.6
   valuePerTouch: 1
+  coinsPerGrowth: 3
+  sizeGainPerTouch: 0.1
+  maxSizeMultiplier: 3
