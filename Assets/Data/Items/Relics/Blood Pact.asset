@@ -21,23 +21,5 @@ MonoBehaviour:
   description: One extra pull every turn, but you lose 8% of your coins at the end of every round.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 26
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 1
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0.08
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: 257d5b79098f45979a7aae9b0d0531ee, type: 2}

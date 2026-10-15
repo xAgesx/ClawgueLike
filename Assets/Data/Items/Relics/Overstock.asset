@@ -21,23 +21,5 @@ MonoBehaviour:
   description: One extra coin slot in the shop, but one fewer relic slot.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 34
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 1
-  extraRelicSlots: -1
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: 6f6b13c7c30449b8ab3bd2b124c027ea, type: 2}

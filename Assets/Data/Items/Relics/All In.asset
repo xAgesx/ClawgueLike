@@ -21,23 +21,5 @@ MonoBehaviour:
   description: Chute coins pay 50% more, but you lose 10% of your coins at the start of every turn.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 22
-  coinMultiplier: 1.5
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0.1
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: b56a167154d54c8b8c956e34ab14d002, type: 2}

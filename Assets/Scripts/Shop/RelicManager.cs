@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Aggregates the modifiers of every owned cursed relic and exposes them as simple
-// queries plus a handful of event callbacks. It owns no gameplay logic itself - the
-// systems that care (Magnet, ShopManager, RoundsManager, ChuteDrop, ItemSpawner) ask
-// it for a number instead of reading their own serialized fields.
+// queries plus a handful of event callbacks. It owns all live state - the relic
+// effects themselves are shared, stateless assets - and the systems that care
+// (Magnet, ShopManager, RoundsManager, ChuteDrop, ItemSpawner) ask it for a number
+// instead of reading anything themselves.
 //
 // The owned list lives on GameManager.relicInventory, so this manager never holds
 // duplicate state. It creates itself on first use, so no scene wiring is required.
@@ -27,18 +28,9 @@ public class RelicManager : MonoBehaviour {
     private int coinsDeliveredThisTurn;
     public int CoinsDeliveredThisTurn => coinsDeliveredThisTurn;
 
-    private static readonly List<RelicData> Empty = new List<RelicData>();
-
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() {
         instance = null;
-    }
-
-    private static IReadOnlyList<RelicData> Relics {
-        get {
-            GameManager gm = GameManager.Instance;
-            return gm != null ? gm.RelicInventory : Empty;
-        }
     }
 
     private void Awake() {
@@ -49,10 +41,36 @@ public class RelicManager : MonoBehaviour {
         instance = this;
     }
 
+    // Walks every effect on every owned relic. Yields nothing when there are no relics
+    // or no GameManager yet, so callers never need a null check of their own.
+    private static IEnumerable<RelicEffect> AllEffects() {
+        GameManager gm = GameManager.Instance;
+        if (gm == null) yield break;
+
+        IReadOnlyList<RelicData> relics = gm.RelicInventory;
+        if (relics == null) yield break;
+
+        for (int i = 0; i < relics.Count; i++) {
+            RelicData relic = relics[i];
+            if (relic == null || relic.effects == null) continue;
+
+            for (int j = 0; j < relic.effects.Count; j++) {
+                RelicEffect effect = relic.effects[j];
+                if (effect != null) yield return effect;
+            }
+        }
+    }
+
     public int CountOwned() {
+        GameManager gm = GameManager.Instance;
+        if (gm == null) return 0;
+
+        IReadOnlyList<RelicData> relics = gm.RelicInventory;
+        if (relics == null) return 0;
+
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n++;
+        for (int i = 0; i < relics.Count; i++) {
+            if (relics[i] != null) n++;
         }
         return n;
     }
@@ -63,24 +81,9 @@ public class RelicManager : MonoBehaviour {
     public void ModifyCoinForCollection(CoinInstance coin) {
         if (coin == null) return;
 
-        float multiplier = 1f;
-        int baseBonus = 0;
-
-        foreach (RelicData relic in Relics) {
-            if (relic == null) continue;
-
-            multiplier *= relic.coinMultiplier;
-            baseBonus += relic.coinBaseBonus;
-
-            if (relic.gambleNothingChance > 0f && Random.value < relic.gambleNothingChance) {
-                multiplier = 0f;
-            } else if (relic.gambleDoubleChance > 0f && Random.value < relic.gambleDoubleChance) {
-                multiplier *= 2f;
-            }
+        foreach (RelicEffect effect in AllEffects()) {
+            effect.ModifyCoinForCollection(coin);
         }
-
-        if (!Mathf.Approximately(multiplier, 1f)) coin.MultiplyMultiplier(multiplier);
-        if (baseBonus != 0) coin.AddBaseValue(baseBonus);
     }
 
     public void NotifyCoinDelivered() {
@@ -91,8 +94,8 @@ public class RelicManager : MonoBehaviour {
 
     public float MagnetRadiusMultiplier() {
         float m = 1f;
-        foreach (RelicData r in Relics) {
-            if (r != null) m *= r.magnetRadiusMultiplier;
+        foreach (RelicEffect effect in AllEffects()) {
+            m *= effect.MagnetRadiusMultiplier();
         }
         return m;
     }
@@ -100,13 +103,8 @@ public class RelicManager : MonoBehaviour {
     public float MagnetForceMultiplier() {
         float m = 1f;
         int coinCount = CoinInstance.ActiveCount;
-
-        foreach (RelicData r in Relics) {
-            if (r == null) continue;
-            m *= r.magnetForceMultiplier;
-            if (r.crowdMagnetThreshold > 0 && coinCount >= r.crowdMagnetThreshold) {
-                m *= r.crowdMagnetForceMultiplier;
-            }
+        foreach (RelicEffect effect in AllEffects()) {
+            m *= effect.MagnetForceMultiplier(coinCount);
         }
         return m;
     }
@@ -115,16 +113,16 @@ public class RelicManager : MonoBehaviour {
 
     public int ExtraPulls() {
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.extraPulls;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.ExtraPulls();
         }
         return n;
     }
 
     public int ExtraNormalCoinsPerRound() {
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.extraNormalCoinsPerRound;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.ExtraNormalCoinsPerRound();
         }
         return n;
     }
@@ -133,48 +131,48 @@ public class RelicManager : MonoBehaviour {
 
     public int ExtraCoinSlots() {
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.extraCoinSlots;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.ExtraCoinSlots();
         }
         return n;
     }
 
     public int ExtraRelicSlots() {
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.extraRelicSlots;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.ExtraRelicSlots();
         }
         return n;
     }
 
     public float ShopPriceMultiplier() {
         float m = 1f;
-        foreach (RelicData r in Relics) {
-            if (r != null) m *= r.shopPriceMultiplier;
+        foreach (RelicEffect effect in AllEffects()) {
+            m *= effect.ShopPriceMultiplier();
         }
         return m;
     }
 
     public float ShopPriceRerollCreep() {
         float n = 0f;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.shopPriceRerollCreep;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.ShopPriceRerollCreep();
         }
         return n;
     }
 
     public int FreeRerolls() {
         int n = 0;
-        foreach (RelicData r in Relics) {
-            if (r != null) n += r.freeRerolls;
+        foreach (RelicEffect effect in AllEffects()) {
+            n += effect.FreeRerolls();
         }
         return n;
     }
 
     public float PaidRerollCostMultiplier() {
         float m = 1f;
-        foreach (RelicData r in Relics) {
-            if (r != null) m *= r.paidRerollCostMultiplier;
+        foreach (RelicEffect effect in AllEffects()) {
+            m *= effect.PaidRerollCostMultiplier();
         }
         return m;
     }
@@ -189,14 +187,8 @@ public class RelicManager : MonoBehaviour {
         GameManager gm = GameManager.Instance;
         if (gm == null) return;
 
-        float drain = 0f;
-        foreach (RelicData r in Relics) {
-            if (r != null) drain += r.balancePercentPerTurnStart;
-        }
-
-        if (drain > 0f) {
-            int lose = Mathf.RoundToInt(gm.CoinsBalance * drain);
-            if (lose > 0) gm.SpendCoins(lose);
+        foreach (RelicEffect effect in AllEffects()) {
+            effect.OnTurnStart(gm);
         }
     }
 
@@ -206,29 +198,8 @@ public class RelicManager : MonoBehaviour {
         GameManager gm = GameManager.Instance;
         if (gm == null) return;
 
-        float interest = 0f;
-        int minDeliveries = 0;
-        float loss = 0f;
-
-        foreach (RelicData r in Relics) {
-            if (r == null) continue;
-
-            if (r.roundEndInterest > 0f && coinsDeliveredThisTurn >= r.interestMinDeliveries) {
-                interest += r.roundEndInterest;
-                minDeliveries = Mathf.Max(minDeliveries, r.interestMinDeliveries);
-            }
-            loss += r.balancePercentPerRoundEnd;
-        }
-
-        if (interest > 0f) {
-            int gain = Mathf.RoundToInt(gm.CoinsBalance * interest);
-            if (gain > 0) gm.AddCoins(gain);
-            Debug.Log($"[RelicManager] Round-end interest paid: {gain} (needed {minDeliveries} deliveries, had {coinsDeliveredThisTurn}).");
-        }
-
-        if (loss > 0f) {
-            int lose = Mathf.RoundToInt(gm.CoinsBalance * loss);
-            if (lose > 0) gm.SpendCoins(lose);
+        foreach (RelicEffect effect in AllEffects()) {
+            effect.OnRoundEnd(gm);
         }
     }
 }

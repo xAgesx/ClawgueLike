@@ -237,11 +237,12 @@ public class PanelManager : MonoBehaviour {
     }
 
     public void UpdateRerollButton(int cost) {
+        string label = cost <= 0 ? "Free" : cost.ToString();
         if (rerollButtonText != null) {
-            rerollButtonText.text = $"Reroll\n{cost}";
+            rerollButtonText.text = $"Reroll\n{label}";
         }
         if (rerollCostText != null) {
-            rerollCostText.text = cost.ToString();
+            rerollCostText.text = label;
         }
     }
 

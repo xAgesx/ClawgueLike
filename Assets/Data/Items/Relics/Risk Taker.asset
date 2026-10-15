@@ -21,23 +21,5 @@ MonoBehaviour:
   description: Every delivered coin has a 50% chance to pay double and a 50% chance to pay nothing.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 22
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0.5
-  gambleNothingChance: 0.5
+  effects:
+  - {fileID: 11400000, guid: c0e73af9a62b4beeb09dd748036333b6, type: 2}

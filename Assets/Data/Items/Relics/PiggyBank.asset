@@ -21,23 +21,5 @@ MonoBehaviour:
   description: Earn 10% interest on your coins each round, but only if the final turn delivered 5 or more coins.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 40
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0.1
-  interestMinDeliveries: 5
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: de2a0c8dbcfa4e5585ebe64aa838182b, type: 2}

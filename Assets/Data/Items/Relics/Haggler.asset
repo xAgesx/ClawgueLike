@@ -21,23 +21,5 @@ MonoBehaviour:
   description: Shop prices are 20% cheaper, but creep up 5% with every reroll this round.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 30
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 0.8
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 0
-  paidRerollCostMultiplier: 1
-  shopPriceRerollCreep: 0.05
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: 62c77eeb9e8040b6a52dd1a3ab8f0916, type: 2}

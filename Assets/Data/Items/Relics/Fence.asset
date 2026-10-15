@@ -21,23 +21,5 @@ MonoBehaviour:
   description: Two free rerolls each visit to the shop, but paid rerolls cost double.
   icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 24
-  coinMultiplier: 1
-  coinBaseBonus: 0
-  magnetRadiusMultiplier: 1
-  magnetForceMultiplier: 1
-  crowdMagnetThreshold: 0
-  crowdMagnetForceMultiplier: 1
-  extraPulls: 0
-  balancePercentPerTurnStart: 0
-  roundEndInterest: 0
-  interestMinDeliveries: 0
-  balancePercentPerRoundEnd: 0
-  extraNormalCoinsPerRound: 0
-  shopPriceMultiplier: 1
-  extraCoinSlots: 0
-  extraRelicSlots: 0
-  freeRerolls: 2
-  paidRerollCostMultiplier: 2
-  shopPriceRerollCreep: 0
-  gambleDoubleChance: 0
-  gambleNothingChance: 0
+  effects:
+  - {fileID: 11400000, guid: cd1b844e005145bca6838fe1e0cb8681, type: 2}

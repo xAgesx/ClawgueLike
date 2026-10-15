@@ -142,6 +142,15 @@ public class ShopManager : MonoBehaviour
         OnShopRefreshed?.Invoke();
     }
 
+    // The paid/free reroll only re-shuffles the coin row - relics and cheats are stable
+    // offers the player saves up for, so they stay put until the round rolls over.
+    private void RerollCoinsOnly()
+    {
+        RerollCoins();
+        UpdateShopUI();
+        OnShopRefreshed?.Invoke();
+    }
+
     private void UpdateShopUI()
     {
         if (PanelManager.Instance != null)
@@ -242,7 +251,7 @@ public class ShopManager : MonoBehaviour
         if (freeRerollsRemaining > 0) {
             freeRerollsRemaining--;
             rerollsThisSession++;
-            RerollAll();
+            RerollCoinsOnly();
             UpdateShopUI();
             OnRerollPerformed?.Invoke();
             return;
@@ -253,7 +262,7 @@ public class ShopManager : MonoBehaviour
         {
             rerollsThisSession++;
             currentRerollCost = Mathf.RoundToInt(currentRerollCost * rerollCostMultiplier);
-            RerollAll();
+            RerollCoinsOnly();
             UpdateShopUI();
             OnRerollPerformed?.Invoke();
         }
@@ -292,6 +301,10 @@ public class ShopManager : MonoBehaviour
             int coinBefore = currentCoinSlots;
             int relicBefore = currentRelicSlots;
             RecalculateSlots();
+
+            // A relic can hand out free rerolls the moment it is bought (Fence), so
+            // refresh the count now instead of waiting for the next shop visit.
+            freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
 
             if (currentCoinSlots != coinBefore || currentRelicSlots != relicBefore) {
                 RerollAll();
