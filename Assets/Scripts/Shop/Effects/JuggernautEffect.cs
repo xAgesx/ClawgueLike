@@ -10,4 +10,8 @@ public class JuggernautEffect : RelicEffect {
     public override float MagnetForceMultiplier(int activeCoins) => forceMultiplier;
     public override float MagnetRadiusMultiplier() => radiusMultiplier;
     public override int ExtraPulls() => pullDelta;
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        return $"+{Mathf.RoundToInt((forceMultiplier - 1f) * 100f)}% force";
+    }
 }

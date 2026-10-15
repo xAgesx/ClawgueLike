@@ -8,4 +8,11 @@ public class HagglerEffect : RelicEffect {
 
     public override float ShopPriceMultiplier() => priceMultiplier;
     public override float ShopPriceRerollCreep() => rerollCreep;
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        int rerolls = ShopManager.Instance != null ? ShopManager.Instance.RerollsThisSession() : 0;
+        float current = priceMultiplier * (1f + rerollCreep * rerolls);
+        int pct = Mathf.RoundToInt((1f - current) * 100f);
+        return pct >= 0 ? "-" + pct + "% prices" : "+" + (-pct) + "% prices";
+    }
 }

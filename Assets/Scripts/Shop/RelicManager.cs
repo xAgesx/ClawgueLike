@@ -177,6 +177,26 @@ public class RelicManager : MonoBehaviour {
         return m;
     }
 
+    // Returns a compact status line for a specific relic (concatenates its effects'
+    // non-empty GetStatusText). Used by the always-visible RelicsInventory UI.
+    public string GetRelicStatus(RelicData relic) {
+        if (relic == null || relic.effects == null || relic.effects.Count == 0) return string.Empty;
+
+        System.Text.StringBuilder sb = null;
+        GameManager gm = GameManager.Instance;
+        foreach (RelicEffect effect in relic.effects) {
+            if (effect == null) continue;
+            string s = effect.GetStatusText(gm, this);
+            if (string.IsNullOrEmpty(s)) continue;
+            if (sb == null) sb = new System.Text.StringBuilder(s);
+            else {
+                sb.Append("  •  ");
+                sb.Append(s);
+            }
+        }
+        return sb != null ? sb.ToString() : string.Empty;
+    }
+
     // ---- Turn / round boundaries ------------------------------------------
 
     // Called from RoundsManager when a turn's coins have landed. Drains are applied

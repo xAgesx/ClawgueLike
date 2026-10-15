@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: LongArm
   m_EditorClassIdentifier: Assembly-CSharp::LongArmEffect
   radiusMultiplier: 1.4
-  forceMultiplier: 0.75
+  forceMultiplier: 0.7

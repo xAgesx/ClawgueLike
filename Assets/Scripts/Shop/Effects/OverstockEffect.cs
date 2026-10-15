@@ -8,4 +8,9 @@ public class OverstockEffect : RelicEffect {
 
     public override int ExtraCoinSlots() => extraCoinSlots;
     public override int ExtraRelicSlots() => extraRelicSlots;
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        string coin = extraCoinSlots >= 0 ? $"+{extraCoinSlots} coin" : $"{extraCoinSlots} coin";
+        return coin;
+    }
 }

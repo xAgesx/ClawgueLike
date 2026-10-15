@@ -49,6 +49,7 @@ public class ShopManager : MonoBehaviour
 
     private int rerollsThisSession = 0;
     private int freeRerollsRemaining = 0;
+    private int grantedFreeRerollsThisVisit;
 
     public event Action OnShopRefreshed;
     public event Action OnRerollPerformed;
@@ -87,7 +88,9 @@ public class ShopManager : MonoBehaviour
         currentRound = GameManager.Instance != null ? GameManager.Instance.CurrentRound : 1;
         currentRerollCost = baseRerollCost;
         RecalculateSlots();
-        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        grantedFreeRerollsThisVisit = freeNow;
+        freeRerollsRemaining = freeNow;
 
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OnShopClosed += OnShopClosed;
@@ -103,7 +106,9 @@ public class ShopManager : MonoBehaviour
     private void OnShopOpened()
     {
         RecalculateSlots();
-        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        grantedFreeRerollsThisVisit = freeNow;
+        freeRerollsRemaining = freeNow;
         RerollAll();
     }
 
@@ -113,7 +118,9 @@ public class ShopManager : MonoBehaviour
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
         RecalculateSlots();
-        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        grantedFreeRerollsThisVisit = freeNow;
+        freeRerollsRemaining = freeNow;
 
         RerollAll();
     }
@@ -306,9 +313,14 @@ public class ShopManager : MonoBehaviour
             int relicBefore = currentRelicSlots;
             RecalculateSlots();
 
-            // A relic can hand out free rerolls the moment it is bought (Fence), so
-            // refresh the count now instead of waiting for the next shop visit.
-            freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+            // A relic can hand out free rerolls the moment it is bought (Fence). Only the
+            // DELTA is added - refreshing the whole count here would give back rerolls the
+            // player already spent this visit just for buying any other relic.
+            int freeTotal = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+            if (freeTotal > grantedFreeRerollsThisVisit) {
+                freeRerollsRemaining += freeTotal - grantedFreeRerollsThisVisit;
+                grantedFreeRerollsThisVisit = freeTotal;
+            }
 
             if (currentCoinSlots != coinBefore || currentRelicSlots != relicBefore) {
                 RerollAll();
@@ -322,6 +334,36 @@ public class ShopManager : MonoBehaviour
         }
         return false;
     }
+    // Public getters for UI (e.g. RelicsInventory) to show live values that depend on
+    // current session state (rerollsThisSession). These read existing modifiers.
+    public float CurrentShopPriceMultiplier() {
+        RelicManager relics = RelicManager.Instance;
+        float m = 1f;
+        if (relics != null) {
+            m *= relics.ShopPriceMultiplier();
+            m *= 1f + relics.ShopPriceRerollCreep() * rerollsThisSession;
+        }
+        return m;
+    }
+
+    public float CurrentShopPriceRerollCreep() {
+        RelicManager relics = RelicManager.Instance;
+        return relics != null ? relics.ShopPriceRerollCreep() : 0f;
+    }
+
+    public int CurrentFreeRerolls() {
+        RelicManager relics = RelicManager.Instance;
+        return relics != null ? relics.FreeRerolls() : 0;
+    }
+
+    public float CurrentPaidRerollCostMultiplier() {
+        RelicManager relics = RelicManager.Instance;
+        return relics != null ? relics.PaidRerollCostMultiplier() : 1f;
+    }
+
+    public int FreeRerollsRemainingNow() => freeRerollsRemaining;
+    public int RerollsThisSession() => rerollsThisSession;
+
 
     public bool BuyCheat(int index)
     {

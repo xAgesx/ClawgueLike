@@ -16,4 +16,9 @@ public class AllInEffect : RelicEffect {
         int lose = Mathf.RoundToInt(game.CoinsBalance * balanceDrainPerTurn);
         if (lose > 0) game.SpendCoins(lose);
     }
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        int coinPct = Mathf.RoundToInt((coinMultiplier - 1f) * 100f);
+        return $"+{coinPct}% chute";
+    }
 }

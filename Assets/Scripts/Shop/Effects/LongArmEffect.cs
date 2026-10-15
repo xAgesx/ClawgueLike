@@ -8,4 +8,8 @@ public class LongArmEffect : RelicEffect {
 
     public override float MagnetRadiusMultiplier() => radiusMultiplier;
     public override float MagnetForceMultiplier(int activeCoins) => forceMultiplier;
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        return "+" + Mathf.RoundToInt((radiusMultiplier - 1f) * 100f) + "% range";
+    }
 }

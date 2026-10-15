@@ -8,4 +8,9 @@ public class FenceEffect : RelicEffect {
 
     public override int FreeRerolls() => freeRerolls;
     public override float PaidRerollCostMultiplier() => paidRerollMultiplier;
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        int remaining = ShopManager.Instance != null ? ShopManager.Instance.FreeRerollsRemainingNow() : freeRerolls;
+        return remaining + " rerolls left";
+    }
 }

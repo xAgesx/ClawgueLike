@@ -28,4 +28,9 @@ public abstract class RelicEffect : ScriptableObject {
     // Turn / round boundaries. `game` is the live GameManager for balance changes.
     public virtual void OnTurnStart(GameManager game) { }
     public virtual void OnRoundEnd(GameManager game) { }
+
+    // Returns a short, human-readable status line for this effect (e.g. "+40% radius,
+    // -25% force"). Return string.Empty if nothing useful to show in the compact
+    // relic inventory panel. The UI concatenates non-empty statuses per relic.
+    public virtual string GetStatusText(GameManager gm, RelicManager rm) => string.Empty;
 }

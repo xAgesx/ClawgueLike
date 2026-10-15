@@ -12,4 +12,8 @@ public class RicherVeinEffect : RelicEffect {
     public override float MagnetForceMultiplier(int activeCoins) {
         return crowdThreshold > 0 && activeCoins >= crowdThreshold ? crowdForceMultiplier : 1f;
     }
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        return $"+{extraCoinsPerRound} coins";
+    }
 }

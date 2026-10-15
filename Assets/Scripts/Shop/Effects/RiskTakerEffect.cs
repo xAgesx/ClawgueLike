@@ -18,4 +18,10 @@ public class RiskTakerEffect : RelicEffect {
             coin.MultiplyMultiplier(2f);
         }
     }
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        int dbl = Mathf.RoundToInt(doubleChance * 100f);
+        int zero = Mathf.RoundToInt(nothingChance * 100f);
+        return $"Delivered coin: {dbl}% ×2, {zero}% ×0";
+    }
 }

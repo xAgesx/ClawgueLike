@@ -15,4 +15,8 @@ public class BloodPactEffect : RelicEffect {
         int lose = Mathf.RoundToInt(game.CoinsBalance * balanceDrainPerRound);
         if (lose > 0) game.SpendCoins(lose);
     }
+
+    public override string GetStatusText(GameManager gm, RelicManager rm) {
+        return $"+{extraPulls} pull";
+    }
 }
