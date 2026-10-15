@@ -25,9 +25,13 @@ public class ChuteDrop : MonoBehaviour {
         int collected = 0;
 
         if (data.itemType == ItemType.Coin) {
+            // Relics adjust baseValue / multiplier before the value is read, so they
+            // stack on top of whatever the coin's own effects did to it.
+            RelicManager.Instance?.ModifyCoinForCollection(coin);
             collected = coin != null ? coin.TotalValue : FallbackCoinValue(data);
             turnCoins += collected;
             gm.AddCoins(collected);
+            RelicManager.Instance?.NotifyCoinDelivered();
         } else if (data.itemType == ItemType.Fragment) {
             turnFragments++;
             gm.AddFragments(1);

@@ -45,6 +45,7 @@ public class ShopManager : MonoBehaviour
     private List<CheatEntry> currentCheats = new List<CheatEntry>();
 
     private int rerollsThisSession = 0;
+    private int freeRerollsRemaining = 0;
 
     public event Action OnShopRefreshed;
     public event Action OnRerollPerformed;
@@ -82,9 +83,8 @@ public class ShopManager : MonoBehaviour
     {
         currentRound = GameManager.Instance != null ? GameManager.Instance.CurrentRound : 1;
         currentRerollCost = baseRerollCost;
-        currentCoinSlots = baseCoinSlots + coinSlotUpgradeLevel;
-        currentRelicSlots = baseRelicSlots + relicSlotUpgradeLevel;
-        currentCheatSlots = baseCheatSlots + cheatSlotUpgradeLevel;
+        RecalculateSlots();
+        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
 
         if (PanelManager.Instance != null) {
             PanelManager.Instance.OnShopClosed += OnShopClosed;
@@ -99,6 +99,8 @@ public class ShopManager : MonoBehaviour
     // left sitting there from the last visit.
     private void OnShopOpened()
     {
+        RecalculateSlots();
+        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
         RerollAll();
     }
 
@@ -107,8 +109,23 @@ public class ShopManager : MonoBehaviour
         currentRound = round;
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
+        RecalculateSlots();
+        freeRerollsRemaining = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
 
         RerollAll();
+    }
+
+    // Base slots plus shop upgrades plus whatever the owned relics add or remove.
+    // Clamped at zero so a "one fewer relic slot" curse can never go negative.
+    private void RecalculateSlots()
+    {
+        RelicManager relics = RelicManager.Instance;
+        int bonusCoin = relics != null ? relics.ExtraCoinSlots() : 0;
+        int bonusRelic = relics != null ? relics.ExtraRelicSlots() : 0;
+
+        currentCoinSlots = Mathf.Max(0, baseCoinSlots + coinSlotUpgradeLevel + bonusCoin);
+        currentRelicSlots = Mathf.Max(0, baseRelicSlots + relicSlotUpgradeLevel + bonusRelic);
+        currentCheatSlots = Mathf.Max(0, baseCheatSlots + cheatSlotUpgradeLevel);
     }
 
     public void OnTurnEnded()
@@ -132,7 +149,7 @@ public class ShopManager : MonoBehaviour
             PanelManager.Instance.UpdateShopCoins(currentCoins);
             PanelManager.Instance.UpdateRelics(currentRelics);
             PanelManager.Instance.UpdateCheats(currentCheats);
-            PanelManager.Instance.UpdateRerollButton(currentRerollCost);
+            PanelManager.Instance.UpdateRerollButton(GetRerollCostNow());
         }
     }
 
@@ -197,14 +214,42 @@ public class ShopManager : MonoBehaviour
     private int CalculatePrice(int basePrice, float roundMultiplier)
     {
         float price = basePrice * Mathf.Pow(roundMultiplier, GameManager.Instance != null ? GameManager.Instance.CurrentRound - 1 : 0);
+
+        RelicManager relics = RelicManager.Instance;
+        if (relics != null) {
+            price *= relics.ShopPriceMultiplier();
+            // Haggler-style creep: each reroll already made this round nudges prices up.
+            price *= 1f + relics.ShopPriceRerollCreep() * rerollsThisSession;
+        }
+
         return Mathf.RoundToInt(price);
     }
 
-    public int GetCurrentRerollCost() => currentRerollCost;
+    public int GetCurrentRerollCost() => GetRerollCostNow();
+
+    // Free rerolls (Fence) come first; once they are spent every paid reroll is scaled
+    // by any relic multiplier. The visible cost always reflects this.
+    private int GetRerollCostNow()
+    {
+        if (freeRerollsRemaining > 0) return 0;
+
+        float mult = RelicManager.Instance != null ? RelicManager.Instance.PaidRerollCostMultiplier() : 1f;
+        return Mathf.RoundToInt(currentRerollCost * mult);
+    }
 
     public void PerformReroll()
     {
-        if (GameManager.Instance != null && GameManager.Instance.SpendCoins(currentRerollCost))
+        if (freeRerollsRemaining > 0) {
+            freeRerollsRemaining--;
+            rerollsThisSession++;
+            RerollAll();
+            UpdateShopUI();
+            OnRerollPerformed?.Invoke();
+            return;
+        }
+
+        int cost = GetRerollCostNow();
+        if (GameManager.Instance != null && GameManager.Instance.SpendCoins(cost))
         {
             rerollsThisSession++;
             currentRerollCost = Mathf.RoundToInt(currentRerollCost * rerollCostMultiplier);
@@ -240,9 +285,21 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.SpendCoins(entry.price))
         {
             entry.isAvailable = false;
-            RerollSingleRelic(index);
-            GameManager.Instance.AddItemToInventory(entry.relicData);
-            UpdateShopUI();
+            GameManager.Instance.AddRelicToInventory(entry.relicData);
+
+            // A relic can change the number of slots (Overstock). If it did, rebuild
+            // the whole board so the rows match; otherwise just refill the bought slot.
+            int coinBefore = currentCoinSlots;
+            int relicBefore = currentRelicSlots;
+            RecalculateSlots();
+
+            if (currentCoinSlots != coinBefore || currentRelicSlots != relicBefore) {
+                RerollAll();
+            } else {
+                RerollSingleRelic(index);
+                UpdateShopUI();
+            }
+
             OnItemPurchased?.Invoke();
             return true;
         }
@@ -303,7 +360,7 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.SpendCoins(cost))
         {
             coinSlotUpgradeLevel++;
-            currentCoinSlots = baseCoinSlots + coinSlotUpgradeLevel;
+            RecalculateSlots();
             return true;
         }
         return false;
@@ -316,7 +373,7 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.SpendCoins(cost))
         {
             relicSlotUpgradeLevel++;
-            currentRelicSlots = baseRelicSlots + relicSlotUpgradeLevel;
+            RecalculateSlots();
             return true;
         }
         return false;
@@ -329,7 +386,7 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.SpendCoins(cost))
         {
             cheatSlotUpgradeLevel++;
-            currentCheatSlots = baseCheatSlots + cheatSlotUpgradeLevel;
+            RecalculateSlots();
             return true;
         }
         return false;

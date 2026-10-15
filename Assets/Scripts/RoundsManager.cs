@@ -60,6 +60,7 @@ public class RoundsManager : MonoBehaviour {
         }
 
         yield return new WaitForSeconds(0.25f);
+        RelicManager.Instance?.OnTurnStart();
         SpecialCoin.DispatchTurnStart();
     }
 
@@ -95,6 +96,10 @@ public class RoundsManager : MonoBehaviour {
     }
 
     private void EndRound() {
+        // Round-end relics resolve before the resupply is paid, so interest can help
+        // cover a bill the player would otherwise fail.
+        RelicManager.Instance?.OnRoundEnd();
+
         int currentRound = GameManager.Instance.CurrentRound;
         int cost;
         

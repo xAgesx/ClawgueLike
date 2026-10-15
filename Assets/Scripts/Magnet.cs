@@ -21,7 +21,11 @@ public class Magnet : MonoBehaviour {
     private void FixedUpdate() {
         if (!magneticFieldActive) return;
 
-        Collider[] hits = Physics.OverlapSphere(transform.position, attractionRadius, itemsLayer);
+        RelicManager relics = RelicManager.Instance;
+        float radius = attractionRadius * (relics != null ? relics.MagnetRadiusMultiplier() : 1f);
+        float force = attractionForce * (relics != null ? relics.MagnetForceMultiplier() : 1f);
+
+        Collider[] hits = Physics.OverlapSphere(transform.position, radius, itemsLayer);
 
         foreach (Collider hit in hits) {
             Rigidbody rb = hit.GetComponent<Rigidbody>();
@@ -33,14 +37,14 @@ public class Magnet : MonoBehaviour {
 
             Vector3 direction = transform.position - hit.transform.position;
             float distance = direction.magnitude;
-            float forceMagnitude = attractionForce * multiplier * (attractionRadius / Mathf.Max(distance, 0.01f));
+            float forceMagnitude = force * multiplier * (radius / Mathf.Max(distance, 0.01f));
 
             rb.AddForce(direction.normalized * forceMagnitude, ForceMode.Acceleration);
 
             Vector3 toMagnet = (transform.position - hit.transform.position).normalized;
             Vector3 tiltAxis = Vector3.Cross(Vector3.up, toMagnet);
             float tiltAngle = Vector3.Angle(Vector3.up, toMagnet);
-            float rotMagnitude = rotationForce * multiplier * (attractionRadius / Mathf.Max(distance, 0.01f));
+            float rotMagnitude = rotationForce * multiplier * (radius / Mathf.Max(distance, 0.01f));
             rb.AddTorque(tiltAxis * tiltAngle * rotMagnitude * 0.01f, ForceMode.Acceleration);
         }
     }

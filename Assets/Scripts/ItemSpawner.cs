@@ -144,7 +144,7 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private IEnumerator SpawnNormalCoinsRoutine() {
-        int count = normalCoinsPerRound;
+        int count = normalCoinsPerRound + RelicBonusCoins();
         if (normalCoinPool == null || normalCoinPool.Length == 0) {
             isSpawning = false;
             yield break;
@@ -200,7 +200,8 @@ public class ItemSpawner : MonoBehaviour {
     private IEnumerator SpawnRoundAndInventoryRoutine() {
         // First spawn normal coins
         if (normalCoinPool != null && normalCoinPool.Length > 0) {
-            while (spawnedCount < normalCoinsPerRound) {
+            int count = normalCoinsPerRound + RelicBonusCoins();
+            while (spawnedCount < count) {
                 SpawnNormalCoin();
                 spawnedCount++;
                 yield return new WaitForSeconds(spawnInterval);
@@ -208,6 +209,11 @@ public class ItemSpawner : MonoBehaviour {
         }
 
         isSpawning = false;
+    }
+
+    private static int RelicBonusCoins() {
+        RelicManager relics = RelicManager.Instance;
+        return relics != null ? relics.ExtraNormalCoinsPerRound() : 0;
     }
 
     private void SpawnNormalCoin() {

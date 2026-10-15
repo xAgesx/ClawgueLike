@@ -28,6 +28,18 @@ public class CoinInstance : MonoBehaviour {
     public float SizeMultiplier => sizeMultiplier;
     public int TotalValue => Mathf.Max(0, Mathf.RoundToInt(baseValue * multiplier));
 
+    // How many coins exist in the machine right now. Pooled coins only count while
+    // active, so this tracks "coins currently in play" cheaply - relics that care
+    // about a crowded machine read this instead of scanning the scene every frame.
+    public static int ActiveCount { get; private set; }
+
+    // Enter Play Mode Options can keep statics alive between sessions; start the count
+    // clean each time the game runs.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() {
+        ActiveCount = 0;
+    }
+
     private void Awake() {
         baseScale = transform.localScale;
         hasBaseScale = true;
@@ -147,9 +159,14 @@ public class CoinInstance : MonoBehaviour {
     // Pooled objects get flipped on before the spawner re-initialises them, so wipe
     // everything here as a safety net. Initialize() then supplies this round's data.
     private void OnEnable() {
+        ActiveCount++;
         multiplier = 1f;
         appliedEffects.Clear();
         ResetTint();
         ResetSize();
+    }
+
+    private void OnDisable() {
+        ActiveCount--;
     }
 }

@@ -26,15 +26,27 @@ public class GameManager : MonoBehaviour {
     public float ShopOpenDelay => shopOpenDelay;
     public float RefillDelay => refillDelay;
 
-    public int MaxPullsPerTurn => maxPullsPerTurn;
+    public int MaxPullsPerTurn => EffectiveMaxPulls;
     public int TurnsPerRound => turnsPerRound;
     public bool IsTurnActive => CurrentPulls > 0;
     public bool IsRoundComplete => CurrentTurn >= turnsPerRound;
 
+    // Base pulls plus whatever the owned relics grant or take away. Clamped so a
+    // stack of "one fewer pull" curses can never leave you with a negative turn.
+    public int EffectiveMaxPulls {
+        get {
+            int bonus = RelicManager.Instance != null ? RelicManager.Instance.ExtraPulls() : 0;
+            return Mathf.Max(0, maxPullsPerTurn + bonus);
+        }
+    }
+
     [Header("Inventory")]
     [SerializeField] private List<InventoryItem> inventory = new List<InventoryItem>();
+    [Header("Relics")]
+    [SerializeField] private List<RelicData> relicInventory = new List<RelicData>();
 
     public IReadOnlyList<InventoryItem> Inventory => inventory;
+    public IReadOnlyList<RelicData> RelicInventory => relicInventory;
 
     [Header("Debug")]
     [Tooltip("Tick this to drop every item in the inventory into the machine. It clears itself the moment it fires, so it can be retriggered for the next round.")]
@@ -94,10 +106,11 @@ public class GameManager : MonoBehaviour {
     public void ResetGame() {
         CoinsBalance = startingCoins;
         FragmentsBalance = startingFragments;
-        CurrentPulls = maxPullsPerTurn;
+        CurrentPulls = EffectiveMaxPulls;
         CurrentTurn = 1;
         CurrentRound = 1;
         inventory.Clear();
+        relicInventory.Clear();
         NotifyAllUI();
     }
 
@@ -141,7 +154,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void ResetPulls() {
-        CurrentPulls = maxPullsPerTurn;
+        CurrentPulls = EffectiveMaxPulls;
         PanelManager.Instance?.UpdatePullsDisplay(CurrentPulls);
     }
 
@@ -187,6 +200,22 @@ public class GameManager : MonoBehaviour {
 
     public bool HasItem(ItemData itemData, int quantity = 1) {
         return GetItemQuantity(itemData) >= quantity;
+    }
+
+    // Relics live in their own list so the coin/inventory spawner never tries to drop
+    // them into the machine. RelicManager reads this list for its modifiers.
+    public void AddRelicToInventory(RelicData relic) {
+        if (relic == null) return;
+        relicInventory.Add(relic);
+        Debug.Log($"[GameManager] Acquired relic: {relic.relicName} (owned: {relicInventory.Count})");
+    }
+
+    public bool HasRelic(RelicData relic) {
+        return relic != null && relicInventory.Contains(relic);
+    }
+
+    public void ClearRelics() {
+        relicInventory.Clear();
     }
 
     public bool SpendItem(ItemData itemData, int quantity = 1) {
