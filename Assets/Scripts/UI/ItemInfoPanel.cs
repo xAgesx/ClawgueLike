@@ -81,6 +81,15 @@ public class ItemInfoPanel : MonoBehaviour {
         HideInternal();
     }
 
+    // Shop slots call this when their data changes while the tooltip is up - an item
+    // was bought and the slot refilled, so the panel must follow without the pointer
+    // having to leave and re-enter.
+    public void UpdateText(string itemName, string description) {
+        if (!isShown) return;
+        if (nameText != null) nameText.text = itemName ?? string.Empty;
+        if (descriptionText != null) descriptionText.text = description ?? string.Empty;
+    }
+
     // Never steals a tooltip that a UI element is showing.
     public void HideWorld() {
         if (!shownByWorld) return;

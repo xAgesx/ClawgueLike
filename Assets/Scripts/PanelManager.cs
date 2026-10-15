@@ -22,6 +22,8 @@ public class PanelManager : MonoBehaviour {
 
     [Serializable]
     public class ShopItemUISlot {
+        [Tooltip("Card root toggled on/off when the number of active slots changes. Falls back to the common ancestor of icon + nameText if left empty.")]
+        public GameObject root;
         public Image icon;
         public TMP_Text nameText;
         public TMP_Text priceText;
@@ -31,6 +33,8 @@ public class PanelManager : MonoBehaviour {
 
     [Serializable]
     public class ShopRelicUISlot {
+        [Tooltip("Card root toggled on/off when the number of active slots changes. Falls back to the common ancestor of icon + nameText if left empty.")]
+        public GameObject root;
         public Image icon;
         public TMP_Text nameText;
         public TMP_Text priceText;
@@ -40,6 +44,8 @@ public class PanelManager : MonoBehaviour {
 
     [Serializable]
     public class ShopCheatUISlot {
+        [Tooltip("Card root toggled on/off when the number of active slots changes. Falls back to the common ancestor of icon + nameText if left empty.")]
+        public GameObject root;
         public Image icon;
         public TMP_Text nameText;
         public TMP_Text priceText;
@@ -165,24 +171,22 @@ public class PanelManager : MonoBehaviour {
         for (int i = 0; i < coinSlots.Count; i++) {
             var slot = coinSlots[i];
             if (slot == null) continue;
-            
-            if (i < coins.Count) {
-                var entry = coins[i];
-                var data = entry.itemData;
-                if (slot.icon != null) slot.icon.sprite = data.icon;
-                if (slot.nameText != null) slot.nameText.text = data.itemName;
-                if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
-                if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
-                SetSlotInfo(slot.icon, slot.nameText, data.itemName, data.description);
-            } else {
-                if (slot.icon != null) slot.icon.sprite = null;
-                if (slot.nameText != null) slot.nameText.text = "";
-                if (slot.priceText != null) slot.priceText.text = "";
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
-                if (slot.buyButton != null) slot.buyButton.interactable = false;
-                SetSlotInfo(slot.icon, slot.nameText, null, null);
-            }
+
+            // Only as many cards as there are live offers are shown - a relic can add or
+            // remove coin slots, so the surplus cards are switched off rather than left
+            // sitting there empty.
+            bool active = i < coins.Count;
+            SetSlotActive(slot.root, slot.icon, slot.nameText, active);
+            if (!active) continue;
+
+            var entry = coins[i];
+            var data = entry.itemData;
+            if (slot.icon != null) slot.icon.sprite = data.icon;
+            if (slot.nameText != null) slot.nameText.text = data.itemName;
+            if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
+            if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
+            if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+            SetSlotInfo(slot.icon, slot.nameText, data.itemName, data.description);
         }
     }
 
@@ -190,24 +194,19 @@ public class PanelManager : MonoBehaviour {
         for (int i = 0; i < relicSlots.Count; i++) {
             var slot = relicSlots[i];
             if (slot == null) continue;
-            
-            if (i < relics.Count) {
-                var entry = relics[i];
-                var data = entry.relicData;
-                if (slot.icon != null) slot.icon.sprite = data.icon;
-                if (slot.nameText != null) slot.nameText.text = data.relicName;
-                if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
-                if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
-                SetSlotInfo(slot.icon, slot.nameText, data.relicName, data.description);
-            } else {
-                if (slot.icon != null) slot.icon.sprite = null;
-                if (slot.nameText != null) slot.nameText.text = "";
-                if (slot.priceText != null) slot.priceText.text = "";
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
-                if (slot.buyButton != null) slot.buyButton.interactable = false;
-                SetSlotInfo(slot.icon, slot.nameText, null, null);
-            }
+
+            bool active = i < relics.Count;
+            SetSlotActive(slot.root, slot.icon, slot.nameText, active);
+            if (!active) continue;
+
+            var entry = relics[i];
+            var data = entry.relicData;
+            if (slot.icon != null) slot.icon.sprite = data.icon;
+            if (slot.nameText != null) slot.nameText.text = data.relicName;
+            if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
+            if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
+            if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+            SetSlotInfo(slot.icon, slot.nameText, data.relicName, data.description);
         }
     }
 
@@ -215,24 +214,19 @@ public class PanelManager : MonoBehaviour {
         for (int i = 0; i < cheatSlots.Count; i++) {
             var slot = cheatSlots[i];
             if (slot == null) continue;
-            
-            if (i < cheats.Count) {
-                var entry = cheats[i];
-                var data = entry.cheatData;
-                if (slot.icon != null) slot.icon.sprite = data.icon;
-                if (slot.nameText != null) slot.nameText.text = data.cheatName;
-                if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
-                if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
-                SetSlotInfo(slot.icon, slot.nameText, data.cheatName, data.description);
-            } else {
-                if (slot.icon != null) slot.icon.sprite = null;
-                if (slot.nameText != null) slot.nameText.text = "";
-                if (slot.priceText != null) slot.priceText.text = "";
-                if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(true);
-                if (slot.buyButton != null) slot.buyButton.interactable = false;
-                SetSlotInfo(slot.icon, slot.nameText, null, null);
-            }
+
+            bool active = i < cheats.Count;
+            SetSlotActive(slot.root, slot.icon, slot.nameText, active);
+            if (!active) continue;
+
+            var entry = cheats[i];
+            var data = entry.cheatData;
+            if (slot.icon != null) slot.icon.sprite = data.icon;
+            if (slot.nameText != null) slot.nameText.text = data.cheatName;
+            if (slot.priceText != null) slot.priceText.text = entry.price.ToString();
+            if (slot.unavailableOverlay != null) slot.unavailableOverlay.SetActive(!entry.isAvailable);
+            if (slot.buyButton != null) slot.buyButton.interactable = entry.isAvailable;
+            SetSlotInfo(slot.icon, slot.nameText, data.cheatName, data.description);
         }
     }
 
@@ -260,6 +254,17 @@ public class PanelManager : MonoBehaviour {
 
     public void UpdateRoundDisplay(int round) {
         OnRoundChanged?.Invoke(round);
+    }
+
+    // Toggles a slot's card on or off. Uses the explicit root when set, otherwise the
+    // same common-ancestor the tooltip resolves, so an unwired slot still behaves.
+    private static void SetSlotActive(GameObject root, Image icon, TMP_Text nameText, bool active) {
+        GameObject card = root;
+        if (card == null) {
+            Transform lca = LowestCommonAncestor(icon, nameText);
+            if (lca != null) card = lca.gameObject;
+        }
+        if (card != null && card.activeSelf != active) card.SetActive(active);
     }
 
     // Hovering a shop card shows its name + description. The slot's own GameObject is

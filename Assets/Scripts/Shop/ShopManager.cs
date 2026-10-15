@@ -15,6 +15,9 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private int baseCoinSlots = 4;
     [SerializeField] private int baseRelicSlots = 3;
     [SerializeField] private int baseCheatSlots = 3;
+    [SerializeField] private int maxCoinSlots = 5;
+    [SerializeField] private int maxRelicSlots = 4;
+    [SerializeField] private int maxCheatSlots = 5;
     [SerializeField] private int coinSlotUpgradeLevel = 0;
     [SerializeField] private int relicSlotUpgradeLevel = 0;
     [SerializeField] private int cheatSlotUpgradeLevel = 0;
@@ -116,16 +119,17 @@ public class ShopManager : MonoBehaviour
     }
 
     // Base slots plus shop upgrades plus whatever the owned relics add or remove.
-    // Clamped at zero so a "one fewer relic slot" curse can never go negative.
+    // Clamped between zero (so a "one fewer relic slot" curse can never go negative)
+    // and the per-row maximum, which is what the shop UI has cards for.
     private void RecalculateSlots()
     {
         RelicManager relics = RelicManager.Instance;
         int bonusCoin = relics != null ? relics.ExtraCoinSlots() : 0;
         int bonusRelic = relics != null ? relics.ExtraRelicSlots() : 0;
 
-        currentCoinSlots = Mathf.Max(0, baseCoinSlots + coinSlotUpgradeLevel + bonusCoin);
-        currentRelicSlots = Mathf.Max(0, baseRelicSlots + relicSlotUpgradeLevel + bonusRelic);
-        currentCheatSlots = Mathf.Max(0, baseCheatSlots + cheatSlotUpgradeLevel);
+        currentCoinSlots = Mathf.Clamp(baseCoinSlots + coinSlotUpgradeLevel + bonusCoin, 0, maxCoinSlots);
+        currentRelicSlots = Mathf.Clamp(baseRelicSlots + relicSlotUpgradeLevel + bonusRelic, 0, maxRelicSlots);
+        currentCheatSlots = Mathf.Clamp(baseCheatSlots + cheatSlotUpgradeLevel, 0, maxCheatSlots);
     }
 
     public void OnTurnEnded()
