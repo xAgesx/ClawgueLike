@@ -50,6 +50,8 @@ public class ShopManager : MonoBehaviour
     private int rerollsThisSession = 0;
     private int freeRerollsRemaining = 0;
     private int grantedFreeRerollsThisVisit;
+    private int bankedFreeRerolls;
+    private bool freeRerollsClaimedThisVisit;
 
     public event Action OnShopRefreshed;
     public event Action OnRerollPerformed;
@@ -88,8 +90,7 @@ public class ShopManager : MonoBehaviour
         currentRound = GameManager.Instance != null ? GameManager.Instance.CurrentRound : 1;
         currentRerollCost = baseRerollCost;
         RecalculateSlots();
-        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
-        grantedFreeRerollsThisVisit = freeNow;
+        int freeNow = ClaimFreeRerollsForVisit();
         freeRerollsRemaining = freeNow;
 
         if (PanelManager.Instance != null) {
@@ -106,8 +107,7 @@ public class ShopManager : MonoBehaviour
     private void OnShopOpened()
     {
         RecalculateSlots();
-        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
-        grantedFreeRerollsThisVisit = freeNow;
+        int freeNow = ClaimFreeRerollsForVisit();
         freeRerollsRemaining = freeNow;
         RerollAll();
     }
@@ -118,11 +118,33 @@ public class ShopManager : MonoBehaviour
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
         RecalculateSlots();
-        int freeNow = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
-        grantedFreeRerollsThisVisit = freeNow;
+        int freeNow = ClaimFreeRerollsForVisit();
         freeRerollsRemaining = freeNow;
 
         RerollAll();
+    }
+
+    // Relic free rerolls are recomputed every visit, but a SkeletonCoin collected mid-
+    // turn has to survive until the shop actually opens. Bank those separately and
+    // hand them out alongside the relic total. grantedFreeRerollsThisVisit tracks only
+    // the relic portion so the Fence's delta logic still works when banked rerolls exist.
+    private int ClaimFreeRerollsForVisit() {
+        // Opening the shop and starting a round can both fire during the same visit.
+        // Claim once, then leave the current count alone so a second call cannot
+        // overwrite (and silently lose) the banked rerolls or refund spent ones.
+        if (freeRerollsClaimedThisVisit) return freeRerollsRemaining;
+
+        int relicFree = RelicManager.Instance != null ? RelicManager.Instance.FreeRerolls() : 0;
+        int total = relicFree + bankedFreeRerolls;
+        grantedFreeRerollsThisVisit = relicFree;
+        bankedFreeRerolls = 0;
+        freeRerollsClaimedThisVisit = true;
+        return total;
+    }
+
+    public void GrantFreeReroll(int amount = 1) {
+        if (amount <= 0) return;
+        bankedFreeRerolls += amount;
     }
 
     // Base slots plus shop upgrades plus whatever the owned relics add or remove.
@@ -364,6 +386,20 @@ public class ShopManager : MonoBehaviour
     public int FreeRerollsRemainingNow() => freeRerollsRemaining;
     public int RerollsThisSession() => rerollsThisSession;
 
+    // Chrysalis turns into one of the shop's special coins. Keeping the choice here
+    // means the pool stays in one place instead of being copied onto every effect.
+    public CoinData GetRandomSpecialCoin() {
+        if (coinPool == null) return null;
+
+        List<CoinData> eligible = new List<CoinData>();
+        foreach (CoinData coin in coinPool) {
+            if (coin != null && coin.IsSpecial) eligible.Add(coin);
+        }
+
+        if (eligible.Count == 0) return null;
+        return eligible[UnityEngine.Random.Range(0, eligible.Count)];
+    }
+
 
     public bool BuyCheat(int index)
     {
@@ -495,6 +531,7 @@ public class ShopManager : MonoBehaviour
     {
         currentRerollCost = baseRerollCost;
         rerollsThisSession = 0;
+        freeRerollsClaimedThisVisit = false;
         UpdateShopUI();
     }
 }

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16e8cd743ca544028b123797098b7dac, type: 3}
+  m_Name: KingCoin
+  m_EditorClassIdentifier: Assembly-CSharp::CoinData
+  itemName: KingCoin
+  prefab: {fileID: 7880067690139979386, guid: b87a77809c57401a94ccad183741a2aa, type: 3}
+  weight: 1
+  magneticAttraction: 1
+  itemType: 0
+  icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
+  basePrice: 12
+  description: "Crowns the first coin it touches for +50% value. Only one crown can exist at a time."
+  baseValue: 1
+  family: 
+  effects:
+  - {fileID: 11400000, guid: f89d4ae190764f6881c166a699f0b060, type: 2}

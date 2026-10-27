@@ -60,8 +60,10 @@ public class RoundsManager : MonoBehaviour {
         }
 
         yield return new WaitForSeconds(0.25f);
+        ChuteDrop.ResetTurnCounters();
         RelicManager.Instance?.OnTurnStart();
         SpecialCoin.DispatchTurnStart();
+        DelayedCoinPod.TickAll();
     }
 
     public void OnPullUsed() {

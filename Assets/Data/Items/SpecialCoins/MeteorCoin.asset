@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16e8cd743ca544028b123797098b7dac, type: 3}
+  m_Name: MeteorCoin
+  m_EditorClassIdentifier: Assembly-CSharp::CoinData
+  itemName: MeteorCoin
+  prefab: {fileID: 7880067690139979386, guid: 2baa4955f7b944af8729c845018a170f, type: 3}
+  weight: 1
+  magneticAttraction: 1
+  itemType: 0
+  icon: {fileID: 21300000, guid: 2bc46691a4a888140a92566f35ba7e9c, type: 3}
+  basePrice: 13
+  description: "Crashes into the pile and scatters every coin within reach. Detonates once."
+  baseValue: 1
+  family: 
+  effects:
+  - {fileID: 11400000, guid: 030fe569539347b6a45b4fdfc3bc8882, type: 2}

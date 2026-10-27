@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.luca3317.tmpeffects": "https://github.com/Luca3317/TMPEffects.git?path=/Package",
     "com.unity.ai.navigation": "2.0.13",
     "com.unity.cloud.gltfast": "6.20.0",
     "com.unity.collab-proxy": "2.12.4",

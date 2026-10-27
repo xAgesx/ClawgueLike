@@ -9,6 +9,12 @@ public class ItemSpawner : MonoBehaviour {
     [SerializeField] private CoinData[] normalCoinPool;
     [SerializeField] private int normalCoinsPerRound = 10;
 
+    [Header("Rare Coins")]
+    [Tooltip("Coins that only appear as a low-chance replacement for a normal coin (Diamond).")]
+    [SerializeField] private CoinData[] rareCoinPool;
+    [Tooltip("Chance that one normal spawn is replaced by a rare coin.")]
+    [SerializeField, Range(0f, 1f)] private float rareCoinChance = 0.02f;
+
     [Header("Inventory Coins (spawned per turn)")]
     [SerializeField] private int inventoryCoinsPerTurn = 4;
 
@@ -54,14 +60,17 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private void InitializePools() {
-        if (normalCoinPool != null) {
-            foreach (CoinData item in normalCoinPool) {
-                if (!pools.ContainsKey(item)) {
-                    GameObject poolParent = new GameObject($"Pool_{item.itemName}");
-                    poolParent.transform.SetParent(transform);
-                    pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
-                }
-            }
+        CreatePools(normalCoinPool);
+        CreatePools(rareCoinPool);
+    }
+
+    private void CreatePools(CoinData[] source) {
+        if (source == null) return;
+        foreach (CoinData item in source) {
+            if (item == null || pools.ContainsKey(item)) continue;
+            GameObject poolParent = new GameObject($"Pool_{item.itemName}");
+            poolParent.transform.SetParent(transform);
+            pools[item] = new ObjectPool(item.prefab, initialPoolSize, poolParent.transform);
         }
     }
 
@@ -217,9 +226,10 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private void SpawnNormalCoin() {
-        if (normalCoinPool == null || normalCoinPool.Length == 0) return;
+        CoinData itemData = PickNormalCoin();
+        if (itemData == null) return;
 
-        CoinData itemData = normalCoinPool[Random.Range(0, normalCoinPool.Length)];
+        EnsurePoolExists(itemData);
         Vector3 spawnPosition = CalculateSpawnPosition();
         Quaternion spawnRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
@@ -228,6 +238,46 @@ public class ItemSpawner : MonoBehaviour {
         item.name = itemData.itemName;
         BindItemData(item, itemData);
         activeItems.Add(item);
+    }
+
+    private CoinData PickNormalCoin() {
+        if (rareCoinPool != null && rareCoinPool.Length > 0 && Random.value < rareCoinChance) {
+            CoinData rare = rareCoinPool[Random.Range(0, rareCoinPool.Length)];
+            if (rare != null) return rare;
+        }
+
+        if (normalCoinPool == null || normalCoinPool.Length == 0) return null;
+        return normalCoinPool[Random.Range(0, normalCoinPool.Length)];
+    }
+
+    /// <summary>
+    /// Returns an item to its pool (or destroys it if it has no pool). Effects that
+    /// consume a coin - Hydra, Black Hole, Chrysalis - use this instead of Destroy so
+    /// pooled objects and the active list stay consistent.
+    /// </summary>
+    public void DespawnCoin(GameObject item) {
+        if (item == null) return;
+
+        activeItems.Remove(item);
+
+        // Glue welds coins together with FixedJoints. A pooled coin must not carry
+        // stale joints into its next life, and joints on other coins must not keep
+        // pointing at it either.
+        Rigidbody body = item.GetComponent<Rigidbody>();
+        if (body != null) {
+            foreach (Joint joint in FindObjectsByType<Joint>(FindObjectsInactive.Exclude)) {
+                if (joint != null && joint.connectedBody == body) Destroy(joint);
+            }
+        }
+        foreach (Joint joint in item.GetComponents<Joint>()) Destroy(joint);
+
+        ItemPickup pickup = item.GetComponent<ItemPickup>();
+        ItemData data = pickup != null ? pickup.ItemData : null;
+        if (data != null && pools.TryGetValue(data, out ObjectPool pool)) {
+            pool.Return(item);
+        } else {
+            Destroy(item);
+        }
     }
 
     private void SpawnInventoryCoin(CoinData itemData) {
@@ -293,11 +343,13 @@ public class ItemSpawner : MonoBehaviour {
     }
 
     private ItemData GetItemDataByName(string name) {
-        foreach (CoinData item in normalCoinPool) {
-            if (item.itemName == name) return item;
+        if (normalCoinPool != null) {
+            foreach (CoinData item in normalCoinPool) {
+                if (item != null && item.itemName == name) return item;
+            }
         }
         foreach (var kvp in pools) {
-            if (kvp.Key.itemName == name) return kvp.Key;
+            if (kvp.Key != null && kvp.Key.itemName == name) return kvp.Key;
         }
         return null;
     }

@@ -19,6 +19,11 @@ public class CoinInstance : MonoBehaviour {
     private Vector3 baseScale;
     private bool hasBaseScale;
 
+    // Where this coin stood at the last turn boundary. Echo needs to know whether it
+    // has moved since then.
+    public Vector3 TurnStartPosition { get; private set; }
+    private int baseValueAtTurnStart = 1;
+
     [Tooltip("How fast the coin swells toward its target size, in size-multiples per second.")]
     [SerializeField] private float sizeGrowthRate = 0.4f;
 
@@ -27,6 +32,13 @@ public class CoinInstance : MonoBehaviour {
     public float Multiplier => multiplier;
     public float SizeMultiplier => sizeMultiplier;
     public int TotalValue => Mathf.Max(0, Mathf.RoundToInt(baseValue * multiplier));
+
+    // The threshold matches SpecialCoin's disturbance check.
+    public bool HasMovedSinceTurnStart => (transform.position - TurnStartPosition).sqrMagnitude > 0.0004f;
+
+    // How much base value this coin has gained since the last turn boundary. Echo
+    // replays this gain on another coin.
+    public int ValueGainedThisTurn => Mathf.Max(0, baseValue - baseValueAtTurnStart);
 
     // How many coins exist in the machine right now. Pooled coins only count while
     // active, so this tracks "coins currently in play" cheaply - relics that care
@@ -54,6 +66,23 @@ public class CoinInstance : MonoBehaviour {
         ResetTint();
         ResetSize();
         ClearMotion();
+
+        // Pool.Get has already placed the coin, so this is its real turn-start point.
+        TurnStartPosition = transform.position;
+        baseValueAtTurnStart = baseValue;
+    }
+
+    // Called once at every turn boundary, before turn-start effects fire, so a coin
+    // can tell whether it was disturbed or gained value during the previous turn.
+    public void MarkTurnStart() {
+        TurnStartPosition = transform.position;
+        baseValueAtTurnStart = baseValue;
+    }
+
+    public static void MarkAllTurnStart() {
+        foreach (CoinInstance coin in FindObjectsByType<CoinInstance>(FindObjectsInactive.Exclude)) {
+            if (coin != null) coin.MarkTurnStart();
+        }
     }
 
     // A reused coin still carries the velocity it had when it was collected, so it

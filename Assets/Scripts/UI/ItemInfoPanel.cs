@@ -44,7 +44,7 @@ public class ItemInfoPanel : MonoBehaviour {
         containerRect = panelRect.parent as RectTransform;
 
         Canvas canvas = GetComponentInParent<Canvas>();
-        if (canvas == null) canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null) canvas = FindAnyObjectByType<Canvas>();
         uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
             ? canvas.worldCamera
             : null;

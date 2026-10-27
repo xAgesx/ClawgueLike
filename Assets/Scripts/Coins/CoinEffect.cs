@@ -10,6 +10,9 @@ public abstract class CoinEffect : ScriptableObject {
     [Tooltip("Off for effects that only do something at a turn boundary (a sleeping coin growing) and must never fire from a physical touch.")]
     [SerializeField] private bool triggersOnContact = true;
 
+    [Tooltip("On for effects that react to every coin collected in the chute (Greedy). Kept separate from contact so the counter only advances when the effect really fires.")]
+    [SerializeField] private bool triggersOnCoinCollected = false;
+
     [Tooltip("If set, only coins whose CoinData.family matches this exactly.")]
     [SerializeField] private string targetFamily = "";
 
@@ -39,6 +42,7 @@ public abstract class CoinEffect : ScriptableObject {
     public bool OncePerTarget => oncePerTarget;
     public bool SpendsPartner => spendsPartner;
     public bool TriggersOnContact => triggersOnContact;
+    public bool TriggersOnCoinCollected => triggersOnCoinCollected;
     public string TargetFamily => targetFamily;
     public float HopInterval => hopInterval;
     public float HopForce => hopForce;
@@ -69,4 +73,16 @@ public abstract class CoinEffect : ScriptableObject {
     // rather than into another coin. Apply only ever runs for coin targets, so a
     // spring that cares about landing has nowhere else to hook in. No-op by default.
     public virtual void OnImpact(CoinInstance coin, SpecialCoin source, Collision collision) { }
+
+    // Fired when the carrying coin drops into the chute, before its value is scored.
+    // Return the amount that should actually be paid. The default leaves the payout
+    // untouched; coins like Dice or Roulette replace it entirely.
+    public virtual int OnCollected(CoinInstance coin, SpecialCoin source, int payout) {
+        return payout;
+    }
+
+    // Fired once for every coin collected in the chute, on every special coin still
+    // in the machine. Effects that feed on the machine's throughput (Greedy) hook in
+    // here instead of trying to watch the chute themselves.
+    public virtual void OnCoinCollected(CoinInstance coin, SpecialCoin source, CoinInstance collected) { }
 }

@@ -22,6 +22,10 @@ public class SpecialCoin : MonoBehaviour {
     // every time the coin leaves the pool, then ticked down in Update.
     private float spawnLockTimer;
 
+    // How many turn boundaries this coin has been present for. Caterpillar uses it to
+    // tell a fresh coin (collected on its first turn) from one that has settled in.
+    private int turnsSurvived;
+
     // Coins this one touched while it was still arming. A coin that falls straight
     // onto the pile makes its one meaningful contact during the delay, and because
     // it stays in contact no fresh event ever arrives - so those touches are held
@@ -47,6 +51,8 @@ public class SpecialCoin : MonoBehaviour {
         }
     }
 
+    public int TurnsSurvived => turnsSurvived;
+
     private Rigidbody Body {
         get {
             if (body == null) body = GetComponent<Rigidbody>();
@@ -65,6 +71,7 @@ public class SpecialCoin : MonoBehaviour {
         hopTimer = -1f;
         spawnLockTimer = spawnAbilityDelay;
         pendingTargets.Clear();
+        turnsSurvived = 0;
     }
 
     private void Update() {
@@ -201,11 +208,67 @@ public class SpecialCoin : MonoBehaviour {
     }
 
     // Called once by RoundsManager when a turn's coins have landed. Every special coin
-    // still in the machine gets its turn-start effects fired.
+    // still in the machine gets its turn-start effects fired. Coins are marked first so
+    // effects can tell what changed during the turn that just ended.
     public static void DispatchTurnStart() {
-        foreach (SpecialCoin coin in FindObjectsByType<SpecialCoin>(FindObjectsSortMode.None)) {
+        CoinInstance.MarkAllTurnStart();
+
+        foreach (SpecialCoin coin in FindObjectsByType<SpecialCoin>(FindObjectsInactive.Exclude)) {
             coin.TurnStart();
         }
+    }
+
+    // Every collected coin is announced to every special coin still in the machine.
+    // Collection-driven effects (Greedy) react here without watching the chute.
+    public static void DispatchCoinCollected(CoinInstance collected) {
+        foreach (SpecialCoin coin in FindObjectsByType<SpecialCoin>(FindObjectsInactive.Exclude)) {
+            coin.NotifyCoinCollected(collected);
+        }
+    }
+
+    // Effects on the coin entering the chute may rewrite its payout before it is
+    // scored. Dice ignores the old value; Banker rounds the running total.
+    public static int ApplyCollectedPayout(CoinInstance collected, int payout) {
+        SpecialCoin special = collected != null ? collected.GetComponent<SpecialCoin>() : null;
+        return special != null ? special.ApplyCollected(payout) : payout;
+    }
+
+    private void NotifyCoinCollected(CoinInstance collected) {
+        CoinData data = pickup != null ? pickup.ItemData as CoinData : null;
+        if (data == null || !data.IsSpecial) return;
+
+        // A coin cannot feed on its own collection; it is already leaving the machine
+        // and its payout is about to be read. Counting itself here would also advance
+        // the same effect a second time in ApplyCollected.
+        if (collected == Self) return;
+
+        foreach (CoinEffect effect in data.effects) {
+            if (effect == null) continue;
+            if (!effect.TriggersOnCoinCollected) continue;
+            if (IsExhausted(effect)) continue;
+
+            effect.OnCoinCollected(Self, this, collected);
+            applications[effect] = ApplicationsFor(effect) + 1;
+
+            if (IsExhausted(effect)) Self.SetTint(effect.SpentTint, effect.SpentTintStrength);
+        }
+    }
+
+    private int ApplyCollected(int payout) {
+        CoinData data = pickup != null ? pickup.ItemData as CoinData : null;
+        if (data == null || !data.IsSpecial) return payout;
+
+        foreach (CoinEffect effect in data.effects) {
+            if (effect == null) continue;
+            if (IsExhausted(effect)) continue;
+
+            payout = effect.OnCollected(Self, this, payout);
+            applications[effect] = ApplicationsFor(effect) + 1;
+
+            if (IsExhausted(effect)) Self.SetTint(effect.SpentTint, effect.SpentTintStrength);
+        }
+
+        return Mathf.Max(0, payout);
     }
 
     private void TurnStart() {
@@ -213,6 +276,8 @@ public class SpecialCoin : MonoBehaviour {
 
         CoinData data = pickup.ItemData as CoinData;
         if (data == null || !data.IsSpecial) return;
+
+        turnsSurvived++;
 
         foreach (CoinEffect effect in data.effects) {
             if (effect == null) continue;
@@ -309,7 +374,7 @@ public class SpecialCoin : MonoBehaviour {
         Vector3 origin = transform.position;
         CoinInstance selfInstance = Self;
 
-        foreach (CoinInstance coin in FindObjectsByType<CoinInstance>(FindObjectsSortMode.None)) {
+        foreach (CoinInstance coin in FindObjectsByType<CoinInstance>(FindObjectsInactive.Exclude)) {
             if (coin == null || coin == selfInstance) continue;
             if (!effect.Affects(coin)) continue;
             if (effect.SpendsPartner && IsExhaustedFor(coin, effect)) continue;

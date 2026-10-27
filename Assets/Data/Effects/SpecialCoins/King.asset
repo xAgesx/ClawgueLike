@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5410ef89014448b9202eaf4b79403fb, type: 3}
+  m_Name: King
+  m_EditorClassIdentifier: Assembly-CSharp::KingEffect
+  affects: 00000000
+  triggersOnContact: 1
+  triggersOnCoinCollected: 0
+  targetFamily: 
+  maxApplications: 0
+  oncePerTarget: 1
+  spendsPartner: 0
+  hopInterval: 0
+  hopForce: 4
+  spentTint: {r: 0.90588236, g: 0, b: 1, a: 1}
+  spentTintStrength: 0.6
+  crownMultiplier: 1.5
