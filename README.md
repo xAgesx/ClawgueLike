@@ -1,7 +1,9 @@
 <div align="center">
 
-<h1>ClawgueLike</h1>
-
+  
+<img style="display: flex; justify-content: center; width: 400px;" src="Assets/Sprites/LogoClawChamp.png"/>
+<h1>ClawChamp</h1>
+<h5>Title Not Final</h5>
 <p><strong>Physics-based, single-player roguelike arcade game for Steam.</strong><br />
 Pull coins from a chaotic pile, build cursed synergies, and pay the rent before the run ends.</p>
 
